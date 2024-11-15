@@ -1,0 +1,38 @@
+{
+  "name": "privatewebsite-backend",
+  "version": "1.0.0",
+  "description": "A private website",
+  "type": "module",
+  "scripts": {
+    "test": "rimraf dist && npm run build && node -enable-source-maps dist/test.js",
+    "build": "rimraf dist && tsc",
+    "start": "node --enable-source-maps dist/index.js",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SALTWOOD/PrivateWebsite-Backend.git"
+  },
+  "author": "SALTWOOD",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SALTWOOD/PrivateWebsite-Backend/issues"
+  },
+  "homepage": "https://github.com/SALTWOOD/PrivateWebsite-Backend#readme",
+  "dependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.5",
+    "env-var": "^7.5.0",
+    "express": "^4.21.1",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7"
+  }
+}
