@@ -1,0 +1,33 @@
+name: Push image on master
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # 根据你的项目需要设置 Node.js 版本
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build # 确保你的 package.json 中有一个 "build" 脚本
+
+      - name: Test
+        run: npm test # 确保你的 package.json 中有一个 "test" 脚本
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./dist
