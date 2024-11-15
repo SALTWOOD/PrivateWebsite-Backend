@@ -4,7 +4,7 @@
   "description": "A private website",
   "type": "module",
   "scripts": {
-    "test": "rimraf dist && npm run build && node -enable-source-maps dist/test.js",
+    "test": "rimraf dist && npm run build && node --enable-source-maps dist/test.js",
     "build": "rimraf dist && tsc",
     "start": "node --enable-source-maps dist/index.js",
     "watch": "tsc -w"
