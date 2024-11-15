@@ -1,4 +1,4 @@
-name: Push image on master
+name: Build and Test on Push
 
 on:
   push:
