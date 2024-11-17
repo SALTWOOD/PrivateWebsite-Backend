@@ -32,6 +32,6 @@ export class Server {
     }
 
     public start(): void {  
-        this.app.listen(2333, "127.0.0.1");
+        this.app.listen(2500, "127.0.0.1");
     }
 }
