@@ -23,15 +23,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: saltwood233/open93athome
+          images: saltwood233/private-website
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
-            saltwood233/open93athome
-            saltwood233/open93athome:${{env.RELEASE_VERSION}}
+            saltwood233/private-website
+            saltwood233/private-website:${{env.RELEASE_VERSION}}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
