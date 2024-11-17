@@ -21,11 +21,14 @@ export class Article {
     public background: string = "";
     public hash: string = "";
 
-    public getJson(): any {
-        const toBoolean = ({ published, ...rest }: Article) => ({
+    public getJson(contentHidden: boolean = false): any {
+        const toBoolean = ({ published, ...rest }: any) => ({
             published: published !== 0,
             ...rest
         });
-        return toBoolean(this);
+        const hideContent = ({ content, ...rest }: any) => (rest);
+        let content = toBoolean(this);
+        if (contentHidden) content = hideContent(content);
+        return content;
     }
 }

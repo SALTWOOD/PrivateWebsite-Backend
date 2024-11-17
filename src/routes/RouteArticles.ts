@@ -14,7 +14,7 @@ export class RouteArticles {
                 const author = inst.db.getEntity<UserEntity>(UserEntity, a.author);
                 return {
                     authorName: author?.username || "Unknown",
-                    ...a.getJson()
+                    ...a.getJson(true)
                 };
             }));
         });
@@ -107,7 +107,7 @@ export class RouteArticles {
             newArticle.id = article.id;
 
             inst.db.update(newArticle);
-            res.json(newArticle.getJson());
+            res.json(newArticle.getJson(true));
         });
 
         inst.app.delete("/api/articles/:id", async (req, res) => {
