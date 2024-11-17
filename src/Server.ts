@@ -6,6 +6,7 @@ import { Config } from './Config.js';
 import { UserEntity } from './database/UserEntity.js';
 import cookieParser from 'cookie-parser';
 import { Article } from './database/Article.js';
+import path from 'path';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -35,6 +36,7 @@ export class Server {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
 
+        this.app.use('/assets', express.static(path.resolve('./assets')));
         const factory = new RouteFactory(this.app, this.db, this.got);
         factory.factory();
     }

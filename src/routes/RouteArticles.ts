@@ -7,8 +7,10 @@ import { createHash } from "crypto";
 export class RouteArticles {
     public static register(inst: RouteFactory): void {
         inst.app.get("/api/articles", async (req, res) => {
+            const user = Utilities.getUser(req, inst.db);
+
             const articles = await inst.db.getEntities<Article>(Article);
-            res.json(articles.map(a => {
+            res.json(articles.filter(a => a.published || (user && (a.author === user?.id || user.permission >= 1))).map(a => {
                 const author = inst.db.getEntity<UserEntity>(UserEntity, a.author);
                 return {
                     authorName: author?.username || "Unknown",
@@ -18,9 +20,14 @@ export class RouteArticles {
         });
 
         inst.app.get("/api/articles/:id", async (req, res) => {
+            const user = Utilities.getUser(req, inst.db);
             const articleId = req.params.id;
             const article = await inst.db.getEntity<Article>(Article, articleId);
             if (article) {
+                if (article.published || (user && (article.author === user.id || user.permission >= 1))) {
+                    res.status(403).json({ error: "Forbidden" });
+                    return;
+                }
                 res.json({
                     authorName: inst.db.getEntity<UserEntity>(UserEntity, article.author)?.username || "Unknown",
                     ...article.getJson()
