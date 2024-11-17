@@ -1,5 +1,5 @@
 services:
-  93athome:
+  private-website:
     image: saltwood233/private-website
     volumes:
       - ./data:/app/data
