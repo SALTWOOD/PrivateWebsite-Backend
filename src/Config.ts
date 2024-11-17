@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import env from 'env-var';
 
 export class Config {
-    public static instance: Config
+    public static _instance: Config
 
     public readonly githubOAuthClientId: string = env.get('GITHUB_OAUTH_CLIENT_ID').default("").asString();
     public readonly githubOAuthClientSecret: string = env.get('GITHUB_OAUTH_CLIENT_SECRET').default("").asString();
@@ -19,19 +19,19 @@ export class Config {
     private constructor() { }
 
     public static getInstance(): Config {
-        if (!Config.instance) {
+        if (!Config._instance) {
             Config.init();
         }
-        return Config.instance;
+        return Config._instance;
     }
 
-    public get instance(): Config {
-        return Config.instance;
+    public static get instance(): Config {
+        return Config._instance;
     }
 
     public static init() {
-        if (!Config.instance) {
-            Config.instance = new Config();
+        if (!Config._instance) {
+            Config._instance = new Config();
         }
     }
 }
