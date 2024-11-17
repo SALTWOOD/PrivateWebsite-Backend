@@ -8,6 +8,7 @@ export class Config {
     // 定义配置字段
     public site_information: { title: string, bio: string } = { title: '', bio: '' };
     public github: { id: string; secret: string, url: { normal: string, api: string } } = { id: '', secret: '', url: { normal: 'github.com', api: 'api.github.com' } };
+    public network: { host: string, port: number } = { host: '127.0.0.1', port: 2500 };
 
     private constructor() {
         // 读取并解析 .env.json 文件

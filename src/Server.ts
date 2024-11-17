@@ -42,6 +42,6 @@ export class Server {
     }
 
     public start(): void {  
-        this.app.listen(2500);
+        this.app.listen(Config.instance.network.port, Config.instance.network.host);
     }
 }
