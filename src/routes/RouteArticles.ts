@@ -102,5 +102,29 @@ export class RouteArticles {
             inst.db.update(newArticle);
             res.json(newArticle);
         });
+
+        inst.app.delete("/api/articles/:id", async (req, res) => {
+            const user = Utilities.getUser(req, inst.db);
+            if (!user) {
+                res.status(401).json({ error: "Unauthorized" });
+                return;
+            }
+            if (user.permission < 1) {
+                res.status(403).json({ error: "Forbidden" });
+                return;
+            }
+            const articleId = req.params.id;
+            const article = await inst.db.getEntity<Article>(Article, articleId);
+            if (!article) {
+                res.status(404).json({ error: "Article not found" });
+                return;
+            }
+            if (article.author === user.id || user.permission >= 2) {
+                inst.db.remove<Article>(Article, article);
+                res.json({ success: true });
+            } else {
+                res.status(403).json({ error: "Forbidden" });
+            }
+        });
     }
 }
