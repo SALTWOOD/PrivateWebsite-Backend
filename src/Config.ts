@@ -12,7 +12,7 @@ export class Config {
 
     private constructor() {
         // 读取并解析 .env.json 文件
-        const data = fs.readFileSync('.env.json', 'utf-8');
+        const data = fs.readFileSync('./data/.env.json', 'utf-8');
         const configData = JSON.parse(data);
 
         // 自动映射配置数据到实例字段
