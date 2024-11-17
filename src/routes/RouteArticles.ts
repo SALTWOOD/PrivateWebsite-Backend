@@ -24,7 +24,7 @@ export class RouteArticles {
             const articleId = req.params.id;
             const article = await inst.db.getEntity<Article>(Article, articleId);
             if (article) {
-                if (article.published || (user && (article.author === user.id || user.permission >= 1))) {
+                if (!article.published && (user && (article.author !== user.id && user.permission < 1))) {
                     res.status(403).json({ error: "Forbidden" });
                     return;
                 }
