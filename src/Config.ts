@@ -26,7 +26,7 @@ export class Config {
     }
 
     public static get instance(): Config {
-        return Config._instance;
+        return Config.getInstance();
     }
 
     public static init() {
