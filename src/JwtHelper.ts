@@ -44,7 +44,7 @@ class JwtHelper {
         const signOptions: SignOptions = {
             expiresIn: expiresInSeconds,
             algorithm: 'RS256',
-            issuer: '93@Home-Center-Server',
+            issuer: 'PrivateWebsite-Backend',
             audience,
         };
         return jwt.sign(payload, this.privateKey, signOptions);

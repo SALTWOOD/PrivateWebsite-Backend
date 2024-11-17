@@ -1,26 +1,60 @@
-import dotenv from 'dotenv';
-import env from 'env-var';
+import fs from 'fs';
 
 export class Config {
-    public static _instance: Config
+    private static _instance: Config;
 
-    public readonly githubOAuthClientId: string = env.get('GITHUB_OAUTH_CLIENT_ID').default("").asString();
-    public readonly githubOAuthClientSecret: string = env.get('GITHUB_OAUTH_CLIENT_SECRET').default("").asString();
-    public readonly githubOAuthCallbackUrl: string = env.get('GITHUB_OAUTH_CALLBACK_URL').default("").asString();
-    public readonly githubUrl: string = env.get('GITHUB_URL').default("github.com").asString();
-    public readonly githubApiUrl: string = env.get('GITHUB_API_URL').default("api.github.com").asString();
+    public static version = "1.0.0";
 
-    // 开发变量
-    public readonly debug: boolean = env.get('DEBUG').default("false").asBool();
-    public readonly disableAccessLog: boolean = env.get('DISABLE_ACCESS_LOG').default("false").asBool();
+    // 定义配置字段
+    public site_information: { title: string, bio: string } = { title: '', bio: '' };
+    public github: { id: string; secret: string, url: { normal: string, api: string } } = { id: '', secret: '', url: { normal: 'github.com', api: 'api.github.com' } };
 
-    public static readonly version: string = "1.0.0";
+    private constructor() {
+        // 读取并解析 .env.json 文件
+        const data = fs.readFileSync('.env.json', 'utf-8');
+        const configData = JSON.parse(data);
 
-    private constructor() { }
+        // 自动映射配置数据到实例字段
+        Object.keys(configData).forEach((key) => {
+            if (key in this) {
+                this.validateAndAssign(key as keyof Config, configData[key]);
+            }
+        });
+    }
+
+    private validateAndAssign(field: keyof Config, value: any): void {
+        const fieldType = typeof this[field];  // 通过 keyof Config 确保访问的是 Config 类中的字段
+
+        // 类型匹配检查
+        if (fieldType === 'string' && typeof value !== 'string') {
+            throw new Error(`Invalid type for field "${field}". Expected string but got ${typeof value}.`);
+        }
+        if (fieldType === 'number' && typeof value !== 'number') {
+            throw new Error(`Invalid type for field "${field}". Expected number but got ${typeof value}.`);
+        }
+        if (fieldType === 'boolean' && typeof value !== 'boolean') {
+            throw new Error(`Invalid type for field "${field}". Expected boolean but got ${typeof value}.`);
+        }
+        if (fieldType === 'object' && typeof value === 'object' && value !== null) {
+            const expectedObjectType = this[field] as unknown as object;
+            if (Array.isArray(value)) {
+                throw new Error(`Invalid type for field "${field}". Expected object but got array.`);
+            }
+            Object.keys(expectedObjectType).forEach(subKey => {
+                if (!(subKey in value)) {
+                    // 补充缺少的字段
+                    (value as any)[subKey] = (expectedObjectType as any)[subKey];
+                }
+            });
+        }
+
+        // 最终赋值
+        (this as any)[field] = value;
+    }
 
     public static getInstance(): Config {
         if (!Config._instance) {
-            Config.init();
+            Config._instance = new Config();
         }
         return Config._instance;
     }
@@ -28,12 +62,4 @@ export class Config {
     public static get instance(): Config {
         return Config.getInstance();
     }
-
-    public static init() {
-        if (!Config._instance) {
-            Config._instance = new Config();
-        }
-    }
 }
-
-dotenv.config()

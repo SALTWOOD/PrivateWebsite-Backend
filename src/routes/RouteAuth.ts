@@ -9,7 +9,7 @@ import { NextFunction, Request, Response } from "express";
 export class RouteAuth {
     public static register(inst: RouteFactory) {
         inst.app.get("/api/auth/id", (req: Request, res: Response) => {
-            res.end(Config.instance.githubOAuthClientId);
+            res.end(Config.instance.github.id);
         });
         inst.app.post("/api/auth/login", async (req: Request, res: Response) => {
             res.set("Content-Type", "application/json");
@@ -18,11 +18,11 @@ export class RouteAuth {
                 const code = req.query.code as string || '';
         
                 // 请求GitHub获取access_token
-                const tokenData = await inst.got.post(`https://${Config.instance.githubUrl}/login/oauth/access_token`, {
+                const tokenData = await inst.got.post(`https://${Config.instance.github.url.normal}/login/oauth/access_token`, {
                     form: {
                         code,
-                        client_id: Config.instance.githubOAuthClientId,
-                        client_secret: Config.instance.githubOAuthClientSecret
+                        client_id: Config.instance.github.id,
+                        client_secret: Config.instance.github.secret
                     },
                     headers: {
                         'Accept': 'application/json'
@@ -32,7 +32,7 @@ export class RouteAuth {
         
                 const accessToken = tokenData.access_token;
         
-                let userResponse = await inst.got(`https://${Config.instance.githubApiUrl}/user`, {
+                let userResponse = await inst.got(`https://${Config.instance.github.url.api}/user`, {
                     headers: {
                         'Authorization': `token ${accessToken}`,
                         'Accept': 'application/json',
@@ -57,7 +57,7 @@ export class RouteAuth {
                 // 生成JWT并设置cookie
                 const token = JwtHelper.instance.issueToken({
                     userId: user.id,
-                    clientId: Config.instance.githubOAuthClientId
+                    clientId: Config.instance.github.id
                 }, "user", 60 * 60 * 24);
         
                 res.cookie('token', token, {
@@ -66,10 +66,10 @@ export class RouteAuth {
                     sameSite: 'lax',
                 });
 
-                if (inst.db.getEntity<UserEntity>(UserEntity, user.id)?.isSuperUser) {
+                if (inst.db.getEntity<UserEntity>(UserEntity, user.id)?.permission) {
                     const adminToken = JwtHelper.instance.issueToken({
                         userId: user.id,
-                        clientId: Config.instance.githubOAuthClientId
+                        clientId: Config.instance.github.id
                     }, "admin", 60 * 60 * 24);
                     res.cookie('adminToken', adminToken, {
                         expires: Utilities.getDate(1, "day"),

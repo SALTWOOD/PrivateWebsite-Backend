@@ -2,6 +2,9 @@ import { Express } from 'express';
 import { SQLiteHelper } from '../database/SQLiteHelper.js';
 import { RouteAuth } from './RouteAuth.js';
 import got, { type Got } from 'got';
+import { RouteUser } from './RouteUser.js';
+import { RouteSite } from './RouteSite.js';
+import { RouteArticles } from './RouteArticles.js';
 
 export class RouteFactory {
     public app: Express;
@@ -16,5 +19,8 @@ export class RouteFactory {
 
     public factory(): void {
         RouteAuth.register(this);
+        RouteUser.register(this);
+        RouteSite.register(this);
+        RouteArticles.register(this);
     }
 }

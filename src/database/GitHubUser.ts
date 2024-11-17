@@ -30,7 +30,7 @@ export class GitHubUser {
         user.id = this.id;
         user.username = this.login;
         user.photo = this.avatar_url;
-        user.isSuperUser = 0;
+        user.permission = 0;
         return user;
     }
 
@@ -39,7 +39,7 @@ export class GitHubUser {
         user.id = this.id;
         user.username = this.login;
         user.photo = this.avatar_url;
-        user.isSuperUser = Number(u.isSuperUser);
+        user.permission = Number(u.permission);
         return user;
     }
 }

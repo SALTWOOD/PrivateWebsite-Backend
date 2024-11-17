@@ -1,3 +1,8 @@
+import { Request } from "express";
+import { UserEntity } from "./database/UserEntity.js";
+import { SQLiteHelper } from "./database/SQLiteHelper.js";
+import JwtHelper from "./JwtHelper.js";
+
 export class Utilities {
     public static getDate(after: number = 0, unit: "ms" | "s" | "min" | "hour" | "day" | "month" | "year" = "day"): Date {
         switch (unit) {
@@ -15,6 +20,22 @@ export class Utilities {
                 return new Date(Date.now() + after * 30 * 24 * 60 * 60 * 1000);
             case "year":
                 return new Date(Date.now() + after * 365 * 24 * 60 * 60 * 1000);
+        }
+    }
+
+    public static getUser(req: Request, db: SQLiteHelper): UserEntity | null {
+        try {
+            const token = req.cookies.token;
+            const data = JwtHelper.instance.verifyToken(token, "user") as { userId: number };
+            const id = data.userId;
+            const user = db.getEntity(UserEntity, id);
+            if (user) {
+                return user;
+            }
+            return null;
+        }
+        catch (e) {
+            return null;
         }
     }
 }

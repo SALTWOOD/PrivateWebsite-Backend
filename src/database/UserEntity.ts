@@ -5,14 +5,14 @@ import { PrimaryKey, Table } from './SQLiteHelper.js';
     id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
     username TEXT NOT NULL, 
     photo TEXT,
-    isSuperUser INTEGER
+    permission INTEGER
 `)
 @PrimaryKey('id')
 export class UserEntity {
     public id: number;
     public username: string;
     public photo: string;
-    public isSuperUser: number = 0;
+    public permission: number = 0;
 
     constructor(id: number = 0, username: string = '', photo: string = '') {
         this.id = id;
