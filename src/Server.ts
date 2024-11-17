@@ -30,4 +30,8 @@ export class Server {
         const factory = new RouteFactory(this.app, this.db, this.got);
         factory.factory();
     }
+
+    public start(): void {  
+        this.app.listen(2333, "127.0.0.1");
+    }
 }
