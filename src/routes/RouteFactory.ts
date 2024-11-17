@@ -5,6 +5,7 @@ import got, { type Got } from 'got';
 import { RouteUser } from './RouteUser.js';
 import { RouteSite } from './RouteSite.js';
 import { RouteArticles } from './RouteArticles.js';
+import { RouteUpload } from './RouteUpload.js';
 
 export class RouteFactory {
     public app: Express;
@@ -22,5 +23,6 @@ export class RouteFactory {
         RouteUser.register(this);
         RouteSite.register(this);
         RouteArticles.register(this);
+        RouteUpload.register(this);
     }
 }
