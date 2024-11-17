@@ -12,7 +12,7 @@ export class RouteArticles {
                 const author = inst.db.getEntity<UserEntity>(UserEntity, a.author);
                 return {
                     authorName: author?.username || "Unknown",
-                    ...a
+                    ...a.getJson()
                 };
             }));
         });
@@ -23,7 +23,7 @@ export class RouteArticles {
             if (article) {
                 res.json({
                     authorName: inst.db.getEntity<UserEntity>(UserEntity, article.author)?.username || "Unknown",
-                    ...article
+                    ...article.getJson()
                 });
             } else {
                 res.status(404).json({ error: "Article not found" });
@@ -59,7 +59,7 @@ export class RouteArticles {
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
 
             inst.db.insert(newArticle);
-            res.json(newArticle);
+            res.json(newArticle.getJson());
         });
 
         inst.app.put("/api/articles/:id", async (req, res) => {
@@ -100,7 +100,7 @@ export class RouteArticles {
             newArticle.id = article.id;
 
             inst.db.update(newArticle);
-            res.json(newArticle);
+            res.json(newArticle.getJson());
         });
 
         inst.app.delete("/api/articles/:id", async (req, res) => {
@@ -113,7 +113,7 @@ export class RouteArticles {
                 res.status(403).json({ error: "Forbidden" });
                 return;
             }
-            const articleId = req.params.id;
+            const articleId = Number(req.params.id);
             const article = await inst.db.getEntity<Article>(Article, articleId);
             if (!article) {
                 res.status(404).json({ error: "Article not found" });

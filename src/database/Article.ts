@@ -20,4 +20,12 @@ export class Article {
     public id: number = 0;
     public background: string = "";
     public hash: string = "";
+
+    public getJson(): any {
+        const toBoolean = ({ published, ...rest }: Article) => ({
+            published: published !== 0,
+            ...rest
+        });
+        return toBoolean(this);
+    }
 }
