@@ -12,8 +12,8 @@ export class Config {
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
 
     private constructor() {
-        // 读取并解析 .env.json 文件
-        const data = fs.readFileSync('./data/.env.json', 'utf-8');
+        // 读取并解析 json 文件
+        const data = fs.readFileSync('./data/config.json', 'utf-8');
         const configData = JSON.parse(data);
 
         // 自动映射配置数据到实例字段
