@@ -58,26 +58,14 @@ export class RouteAuth {
                 const token = JwtHelper.instance.issueToken({
                     userId: user.id,
                     clientId: Config.instance.github.id
-                }, "user", 60 * 60 * 24);
+                }, "user", 60 * 60 * 24 * Config.instance.user.tokenExpiration);
         
                 res.cookie('token', token, {
-                    expires: Utilities.getDate(1, "day"),
+                    expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
                     secure: true,
                     sameSite: 'lax',
                 });
 
-                if (inst.db.getEntity<UserEntity>(UserEntity, user.id)?.permission) {
-                    const adminToken = JwtHelper.instance.issueToken({
-                        userId: user.id,
-                        clientId: Config.instance.github.id
-                    }, "admin", 60 * 60 * 24);
-                    res.cookie('adminToken', adminToken, {
-                        expires: Utilities.getDate(1, "day"),
-                        secure: true,
-                        sameSite: 'lax',
-                    });
-                }
-        
                 res.status(200).json({
                     avatar_url: user.avatar_url,
                     username: user.login,
