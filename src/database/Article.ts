@@ -1,4 +1,4 @@
-import { PrimaryKey, Table } from "./SQLiteHelper.js";
+import { PrimaryKey, Table } from "./IDatabase.js";
 
 @PrimaryKey("id")
 @Table("articles", `

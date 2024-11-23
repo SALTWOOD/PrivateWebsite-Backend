@@ -1,4 +1,4 @@
-import { Table } from './SQLiteHelper.js';
+import { Table } from './IDatabase.js';
 import { UserEntity } from './UserEntity.js';
 
 @Table('github_users', `

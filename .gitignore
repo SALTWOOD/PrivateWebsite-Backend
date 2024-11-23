@@ -108,3 +108,4 @@ database.sqlite
 /plugin-dependencies/node_modules
 
 .env*
+/mysql_data

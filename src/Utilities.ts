@@ -2,6 +2,7 @@ import { Request } from "express";
 import { UserEntity } from "./database/UserEntity.js";
 import { SQLiteHelper } from "./database/SQLiteHelper.js";
 import JwtHelper from "./JwtHelper.js";
+import { IDatabase } from "./database/IDatabase.js";
 
 export class Utilities {
     public static getDate(after: number = 0, unit: "ms" | "s" | "min" | "hour" | "day" | "month" | "year" = "day"): Date {
@@ -23,12 +24,12 @@ export class Utilities {
         }
     }
 
-    public static getUser(req: Request, db: SQLiteHelper): UserEntity | null {
+    public static async getUser(req: Request, db: IDatabase): Promise<UserEntity | null> {
         try {
             const token = req.cookies.token;
             const data = JwtHelper.instance.verifyToken(token, "user") as { userId: number };
             const id = data.userId;
-            const user = db.getEntity(UserEntity, id);
+            const user = await db.getEntity(UserEntity, id);
             if (user) {
                 return user;
             }

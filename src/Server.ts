@@ -7,18 +7,26 @@ import { UserEntity } from './database/UserEntity.js';
 import cookieParser from 'cookie-parser';
 import { Article } from './database/Article.js';
 import path from 'path';
+import { IDatabase } from './database/IDatabase.js';
+import { MySqlHelper } from './database/MySqlHelper.js';
 
 // @ts-ignore
 await import('express-async-errors');
 
 export class Server {
     private app: Express;
-    private db: SQLiteHelper;
+    private db: IDatabase;
     private got: Got;
 
     constructor() {
         this.app = express();
-        this.db = new SQLiteHelper("./data/database.sqlite");
+        this.db = Config.instance.database.type ==='sqlite'? new SQLiteHelper("./data/database.sqlite") : new MySqlHelper(
+            Config.instance.database.host,
+            Config.instance.database.port,
+            Config.instance.database.username,
+            Config.instance.database.password,
+            Config.instance.database.database
+        );
         this.got = got.extend({
             headers: {
                 'user-agent': `PrivateWebsite-Backend/${Config.version} (TypeScript; Node.js/${process.version}; SALTWOOD/PrivateWebsite-Backend)`

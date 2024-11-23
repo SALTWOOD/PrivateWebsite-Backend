@@ -12,7 +12,7 @@ export class RouteUser {
                 return;
             }
             const id = (obj as { userId: number }).userId || -1;
-            const user = inst.db.getEntity(UserEntity, id);
+            const user = await inst.db.getEntity(UserEntity, id);
             if (user) {
                 res.json(user);
             } else {

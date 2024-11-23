@@ -9,18 +9,19 @@ import { RouteUpload } from './RouteUpload.js';
 import { RouteRss } from './RouteRss.js';
 import { RssFeed } from '../RssFeed.js';
 import { Article } from '../database/Article.js';
+import { IDatabase } from '../database/IDatabase.js';
 
 export class RouteFactory {
     public app: Express;
-    public db: SQLiteHelper;
+    public db: IDatabase;
     public got: Got
     public rss: RssFeed;
 
-    constructor(app: Express, db: SQLiteHelper, got: Got) {
+    constructor(app: Express, db: IDatabase, got: Got) {
         this.app = app;
         this.db = db;
         this.got = got;
-        this.rss = new RssFeed(() => db.getEntities<Article>(Article));
+        this.rss = new RssFeed(async () => await db.getEntities<Article>(Article));
     }
 
     public factory(): void {

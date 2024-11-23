@@ -16,3 +16,31 @@ services:
       options:
         max-size: '10m'
         max-file: '10'
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootroot
+      MYSQL_DATABASE: private_website_db
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - internal_network
+    restart: unless-stopped
+    # 仅在容器内网暴露 MySQL 服务
+    # ports:
+    #   - "3306:3306"  # 暴露到宿主机端口 3306，可取消注释暴露到公网
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./mysql_data
+      o: bind
+
+networks:
+  internal_network:
+    driver: bridge

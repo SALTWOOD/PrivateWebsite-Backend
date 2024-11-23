@@ -12,6 +12,14 @@ export class Config {
     public network: { host: string, port: number } = { host: '127.0.0.1', port: 2500 };
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
     public rss: { description: string, url: string } = { description: '', url: 'https://example.com' };
+    public database: { type: "sqlite" | "mysql", host: string, port: number, username: string, password: string, database: string } = {
+        type: "sqlite",
+        host: "localhost",
+        port: 3306,
+        username: "mysql",
+        password: "mysql",
+        database: "private_website_db"
+    }
 
     private constructor() {
         // 读取并解析 json 文件

@@ -14,20 +14,23 @@ export class RouteArticles {
         });
 
         inst.app.get("/api/articles", async (req, res) => {
-            const user = Utilities.getUser(req, inst.db);
+            const user = await Utilities.getUser(req, inst.db);
 
             const articles = await inst.db.getEntities<Article>(Article);
-            res.json(articles.filter(a => a.published || (user && (a.author === user?.id || user.permission >= 1))).map(a => {
-                const author = inst.db.getEntity<UserEntity>(UserEntity, a.author);
+
+            const query = articles.filter(a => a.published || (user && (a.author === user?.id || user.permission >= 1))).map(async a => {
+                const author = await inst.db.getEntity<UserEntity>(UserEntity, a.author);
                 return {
                     authorName: author?.username || "Unknown",
                     ...a.getJson(true)
                 };
-            }));
+            });
+
+            res.json(await Promise.all(query));
         });
 
         inst.app.get("/api/articles/:id", async (req, res) => {
-            const user = Utilities.getUser(req, inst.db);
+            const user = await Utilities.getUser(req, inst.db);
             const articleId = req.params.id;
             const article = await inst.db.getEntity<Article>(Article, articleId);
             if (article) {
@@ -36,7 +39,7 @@ export class RouteArticles {
                     return;
                 }
                 res.json({
-                    authorName: inst.db.getEntity<UserEntity>(UserEntity, article.author)?.username || "Unknown",
+                    authorName: (await inst.db.getEntity<UserEntity>(UserEntity, article.author))?.username || "Unknown",
                     ...article.getJson()
                 });
             } else {
@@ -45,7 +48,7 @@ export class RouteArticles {
         });
 
         inst.app.post("/api/articles", async (req, res) => {
-            const user = Utilities.getUser(req, inst.db);
+            const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).json({ error: "Unauthorized" });
                 return;
@@ -62,7 +65,7 @@ export class RouteArticles {
                 background: string
             };
 
-            const num = inst.db.getEntities(Article).map(a => a.id).reduce((a, b) => Math.max(a, b), 0) + 1;
+            const num = (await inst.db.getEntities(Article)).map(a => a.id).reduce((a, b) => Math.max(a, b), 0) + 1;
 
             const newArticle = new Article();
             newArticle.title = article.title;
@@ -79,7 +82,7 @@ export class RouteArticles {
         });
 
         inst.app.put("/api/articles/:id", async (req, res) => {
-            const user = Utilities.getUser(req, inst.db);
+            const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).json({ error: "Unauthorized" });
                 return;
@@ -122,7 +125,7 @@ export class RouteArticles {
         });
 
         inst.app.delete("/api/articles/:id", async (req, res) => {
-            const user = Utilities.getUser(req, inst.db);
+            const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).json({ error: "Unauthorized" });
                 return;

@@ -1,4 +1,4 @@
-import { PrimaryKey, Table } from './SQLiteHelper.js';
+import { PrimaryKey, Table } from './IDatabase.js';
 
 // TypeScript 等效的 UserEntity 类
 @Table('users', `

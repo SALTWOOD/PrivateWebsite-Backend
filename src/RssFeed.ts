@@ -2,11 +2,11 @@ import { Config } from "./Config.js";
 import { Article } from "./database/Article.js";
 
 export class RssFeed {
-    private _data: string;
-    private func: () => Article[];
+    private _data: string = "";
+    private func: () => Promise<Article[]>;
 
-    constructor(func: () => Article[]) {
-        this._data = this.generate();
+    constructor(func: () => Promise<Article[]>) {
+        this.notify();
         this.func = func;
     }
 
@@ -19,11 +19,11 @@ export class RssFeed {
     public get data(): string { return this.data; }
 
     // 生成 RSS 2.0 格式
-    public generate(): string {
+    public async generate(): Promise<string> {
         const channelTitle = Config.instance.site_information.title;
         const channelLink = Config.instance.site.publicUrl;
         const channelDescription = Config.instance.rss.description;
-        const articles = this.func();
+        const articles = await this.func();
 
         const items = articles.map((article) => {
             const pubDate = this.toRFC822Date(article.publishedAt);
@@ -51,8 +51,6 @@ ${items}
     }
 
     public async notify(): Promise<void> {
-        return new Promise(() => {
-            this._data = this.generate();
-        });
+        this._data = await this.generate();
     }
 }

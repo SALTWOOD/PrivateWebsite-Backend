@@ -9,8 +9,8 @@ import { Utilities } from "../Utilities.js";
 export class RouteUpload {
     public static register(inst: RouteFactory): void {
         // 上传认证中间件
-        inst.app.use("/api/upload", (req: Request, res: Response, next: NextFunction) => {
-            const user = Utilities.getUser(req, inst.db);
+        inst.app.use("/api/upload", async (req: Request, res: Response, next: NextFunction) => {
+            const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).json({ error: 'Unauthorized' });
                 return;
