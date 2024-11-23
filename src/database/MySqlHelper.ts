@@ -15,15 +15,24 @@ export class MySqlHelper implements IDatabase {
 
     // 初始化 MySQL 连接
     public async init(): Promise<void> {
-        this.mysqlConnection = await mysql.createConnection({
-            host: this.mysqlHost,
-            port: this.mysqlPort,
-            user: this.mysqlUser,
-            password: this.mysqlPassword,
-            database: this.mysqlDatabase,
-            charset: 'utf8mb4'
-        });
-        console.log("MySQL connected");
+        for (let i = 0; i < 5; i++) {
+            try {
+                this.mysqlConnection = await mysql.createConnection({
+                    host: this.mysqlHost,
+                    port: this.mysqlPort,
+                    user: this.mysqlUser,
+                    password: this.mysqlPassword,
+                    database: this.mysqlDatabase,
+                    charset: 'utf8mb4'
+                });
+                console.log("MySQL connected");
+                break;
+            }
+            catch (err) {
+                console.error(`MySQL connection failed, retrying... (${i+1}/5)`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+            }
+        }
     }
 
     // 创建或更新表（MySQL）
