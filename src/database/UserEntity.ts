@@ -8,8 +8,8 @@ import { PrimaryKey, Table } from './IDatabase.js';
     permission INTEGER
 `, `
     id INT AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
-    photo VARCHAR(255),
+    username VARCHAR(32) NOT NULL,
+    photo VARCHAR(128),
     permission INT DEFAULT 0,
     PRIMARY KEY (id)
 `)

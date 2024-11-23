@@ -15,10 +15,10 @@ import { PrimaryKey, Table } from "./IDatabase.js";
     id INT,
     author INT,
     content TEXT,
-    description VARCHAR(256),
+    description VARCHAR(128),
     published INT,
     publishedAt BIGINT,
-    title VARCHAR(32),
+    title VARCHAR(24),
     background TEXT,
     hash CHAR(64),
     PRIMARY KEY (id)
