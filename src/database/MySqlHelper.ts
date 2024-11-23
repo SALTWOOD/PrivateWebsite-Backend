@@ -109,7 +109,7 @@ export class MySqlHelper implements IDatabase {
         const tableName = this.getTableNameByConstructor(type);
         const pk = mysqlPrimaryKeyMap.get(type.constructor as { new(): T }) || 'id';
         const selectSQL = `SELECT * FROM ${tableName} WHERE ${pk} = ?`;
-        const [_, rows] = await this.mysqlConnection.query(selectSQL, [primaryKey]);
+        const rows = (await this.mysqlConnection.query(selectSQL, [primaryKey]))[0] as T[];
 
         if (rows.length > 0) {
             const entity = new type();
@@ -124,9 +124,9 @@ export class MySqlHelper implements IDatabase {
     public async getEntities<T extends object>(type: { new(): T }): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
         const selectSQL = `SELECT * FROM ${tableName}`;
-        const [_, rows] = await this.mysqlConnection.query(selectSQL);
+        const [rows] = await this.mysqlConnection.query(selectSQL);
 
-        return rows.map((row: mysql.FieldPacket) => {
+        return (rows as T[]).map((row: T) => {
             const entity = new type();
             Object.assign(entity, row);
             return entity;
