@@ -12,15 +12,16 @@ import { PrimaryKey, Table } from "./IDatabase.js";
     background TEXT,
     hash TEXT
 `, `
+    id INT,
     author INT,
     content TEXT,
-    description TEXT,
+    description VARCHAR(256),
     published INT,
-    publishedAt INT,
-    title TEXT,
-    id INT,
+    publishedAt BIGINT,
+    title VARCHAR(32),
     background TEXT,
-    hash TEXT
+    hash CHAR(64),
+    PRIMARY KEY (id)
 `)
 export class Article {
     public author: number = 0;

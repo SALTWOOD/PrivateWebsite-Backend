@@ -7,7 +7,7 @@ import { UserEntity } from './UserEntity.js';
     avatar_url TEXT
 `, `
     id INT,
-    login VARCHAR(255),
+    login VARCHAR(64),
     avatar_url VARCHAR(255),
     PRIMARY KEY (id)
 `)
