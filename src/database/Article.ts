@@ -8,7 +8,7 @@ import { PrimaryKey, Table } from "./IDatabase.js";
     published BOOLEAN,
     publishedAt INTEGER,
     title TEXT,
-    id INTEGER INDEX,
+    id INTEGER,
     background TEXT,
     hash TEXT
 `)

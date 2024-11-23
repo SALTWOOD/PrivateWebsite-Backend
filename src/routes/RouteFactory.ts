@@ -17,11 +17,11 @@ export class RouteFactory {
     public got: Got
     public rss: RssFeed;
 
-    constructor(app: Express, db: IDatabase, got: Got) {
+    constructor(app: Express, db: IDatabase, got: Got, rss: RssFeed) {
         this.app = app;
         this.db = db;
         this.got = got;
-        this.rss = new RssFeed(async () => await db.getEntities<Article>(Article));
+        this.rss = rss;
     }
 
     public factory(): void {

@@ -9,6 +9,7 @@ import { Article } from './database/Article.js';
 import path from 'path';
 import { IDatabase } from './database/IDatabase.js';
 import { MySqlHelper } from './database/MySqlHelper.js';
+import { RssFeed } from './RssFeed.js';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -17,6 +18,7 @@ export class Server {
     private app: Express;
     private db: IDatabase;
     private got: Got;
+    private rss: RssFeed;
 
     constructor() {
         this.app = express();
@@ -36,6 +38,8 @@ export class Server {
         this.db.createTable<UserEntity>(UserEntity);
         this.db.createTable<Article>(Article);
 
+        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
+
         this.setupRoutes();
     }
 
@@ -45,7 +49,7 @@ export class Server {
         this.app.use(cookieParser());
 
         this.app.use('/assets', express.static(path.resolve('./assets')));
-        const factory = new RouteFactory(this.app, this.db, this.got);
+        const factory = new RouteFactory(this.app, this.db, this.got, this.rss);
         factory.factory();
     }
 
