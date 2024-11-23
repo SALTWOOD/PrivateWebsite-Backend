@@ -5,6 +5,11 @@ import { UserEntity } from './UserEntity.js';
     id INTEGER PRIMARY KEY,
     login TEXT,
     avatar_url TEXT
+`, `
+    id INT,
+    login VARCHAR(255),
+    avatar_url VARCHAR(255),
+    PRIMARY KEY (id)
 `)
 export class GitHubUser {
     id: number;

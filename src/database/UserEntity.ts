@@ -6,6 +6,12 @@ import { PrimaryKey, Table } from './IDatabase.js';
     username TEXT NOT NULL, 
     photo TEXT,
     permission INTEGER
+`, `
+    id INT AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    photo VARCHAR(255),
+    permission INT DEFAULT 0,
+    PRIMARY KEY (id)
 `)
 @PrimaryKey('id')
 export class UserEntity {

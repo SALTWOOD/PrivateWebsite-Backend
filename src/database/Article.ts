@@ -5,10 +5,20 @@ import { PrimaryKey, Table } from "./IDatabase.js";
     author INTEGER,
     content TEXT,
     description TEXT,
-    published BOOLEAN,
+    published INTEGER,
     publishedAt INTEGER,
     title TEXT,
     id INTEGER,
+    background TEXT,
+    hash TEXT
+`, `
+    author INT,
+    content TEXT,
+    description TEXT,
+    published INT,
+    publishedAt INT,
+    title TEXT,
+    id INT,
     background TEXT,
     hash TEXT
 `)
