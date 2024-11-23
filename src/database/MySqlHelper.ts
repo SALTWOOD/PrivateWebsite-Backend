@@ -38,7 +38,7 @@ export class MySqlHelper implements IDatabase {
         // 检查表是否已经存在
         const [rows] = await this.mysqlConnection.query(`SHOW TABLES LIKE ?`, [tableName]);
         if ((rows as any[]).length > 0) {
-            // 表存在，检查并添加缺少的列（MySQL暂不支持直接删除列，通常需要创建新表）
+            // 表存在，检查并更新列类型和缺少的列
             await this.updateTableStructure(tableName, schema);
         } else {
             // 表不存在，直接创建
@@ -47,37 +47,54 @@ export class MySqlHelper implements IDatabase {
         }
     }
 
-    // 检查并添加缺失的列
+    // 检查并更新表结构
     private async updateTableStructure(tableName: string, schema: string): Promise<void> {
         // 获取现有表的列信息
-        const [existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`);
+        const [existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`) as any[];
 
-        // 从 schema 中提取列名
-        const newColumns = schema
-            .split(',')
-            .map(col => col.trim().split(' ')[0])
-            // 判断是否全是大写字母，如果是，则过滤掉
-            .filter(col => !/^[A-Z_]+$/.test(col));
+        // 解析当前表结构和 schema，检查列是否变化
+        const newColumns = schema.split(',').map(col => col.trim()).filter(col => !/^[A-Z_]+$/.test(col.split(' ').at(0) || ''));
+        const columnsToAdd: string[] = [];
+        const columnsToModify: { columnName: string, newDefinition: string }[] = [];
 
-        // 找出多余的列（MySQL暂不支持直接删除列，通常需要创建新表）
-        const columnsToAdd = newColumns.filter(columnName => !(existingColumns as any[]).some((col) => col.Field === columnName));
+        // 比较现有表列与新列，找出差异
+        for (const newColumn of newColumns) {
+            const columnName = newColumn.split(' ')[0]; // 获取列名
+            const existingColumn = (existingColumns as any[]).find(col => col.Field === columnName);
 
-        // 如果有缺失的列，使用 ALTER TABLE 添加
-        if (columnsToAdd.length > 0) {
-            for (const column of columnsToAdd) {
-                const columnDefinition = schema
-                    .split(',')
-                    .map(col => col.trim())
-                    .find(col => col.startsWith(column));
+            if (!existingColumn) {
+                columnsToAdd.push(newColumn); // 如果列不存在，添加列
+            } else {
+                // 比较列类型，必要时修改列类型
+                const currentColumnDefinition = existingColumn.Type.trim();
+                const newColumnDefinition = newColumn.split(' ').slice(1).join(' ').trim();
 
-                if (columnDefinition) {
-                    const alterTableSQL = `ALTER TABLE ${tableName} ADD COLUMN ${columnDefinition}`;
-                    await this.mysqlConnection.query(alterTableSQL);
-                    console.log(`Added column ${column} to table ${tableName}`);
+                if (currentColumnDefinition !== newColumnDefinition) {
+                    columnsToModify.push({ columnName, newDefinition: newColumn });
                 }
             }
-        } else {
-            console.log(`No new columns to add for table ${tableName}`);
+        }
+
+        // 添加缺少的列
+        if (columnsToAdd.length > 0) {
+            for (const column of columnsToAdd) {
+                const alterTableSQL = `ALTER TABLE ${tableName} ADD COLUMN ${column}`;
+                await this.mysqlConnection.query(alterTableSQL);
+                console.log(`Added column ${column} to table ${tableName}`);
+            }
+        }
+
+        // 修改列的定义（如果列类型发生变化）
+        if (columnsToModify.length > 0) {
+            for (const { columnName, newDefinition } of columnsToModify) {
+                const alterColumnSQL = `ALTER TABLE ${tableName} MODIFY COLUMN ${newDefinition}`;
+                await this.mysqlConnection.query(alterColumnSQL);
+                console.log(`Modified column ${columnName} to ${newDefinition} in table ${tableName}`);
+            }
+        }
+
+        if (columnsToAdd.length === 0 && columnsToModify.length === 0) {
+            console.log(`No changes needed for table ${tableName}`);
         }
     }
 
@@ -166,6 +183,11 @@ export class MySqlHelper implements IDatabase {
         await this.mysqlConnection.query(deleteSQL, [data[pk]]);
     }
 
+    // 关闭 MySQL 连接
+    public async close(): Promise<void> {
+        await this.mysqlConnection.end();
+    }
+
     private getTableName<T extends object>(obj: T): string {
         const constructor = (obj as Object).constructor;
         return this.getTableNameByConstructor(constructor as { new(): T });
@@ -179,10 +201,5 @@ export class MySqlHelper implements IDatabase {
             throw new Error(`Table name for type ${type.name} not defined`);
         }
         return tableName;
-    }
-
-    // 关闭 MySQL 连接
-    public async close(): Promise<void> {
-        await this.mysqlConnection.end();
     }
 }
