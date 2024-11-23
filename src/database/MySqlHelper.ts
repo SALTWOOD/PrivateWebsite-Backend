@@ -13,12 +13,11 @@ export class MySqlHelper implements IDatabase {
         private mysqlPassword: string = 'rootpassword',
         private mysqlDatabase: string = 'private_website_db'
     ) {
-        // 初始化 MySQL 连接
-        this.initMysqlConnection();
+
     }
 
     // 初始化 MySQL 连接
-    private async initMysqlConnection() {
+    public async init() {
         this.mysqlConnection = await mysql.createConnection({
             host: this.mysqlHost,
             port: this.mysqlPort,

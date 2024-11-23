@@ -21,7 +21,7 @@ export class RssFeed {
     // 生成 RSS 2.0 格式
     public async generate(): Promise<string> {
         const channelTitle = Config.instance.site_information.title;
-        const channelLink = Config.instance.site.publicUrl;
+        const channelLink = Config.instance.rss.url;
         const channelDescription = Config.instance.rss.description;
         const articles = await this.func();
 

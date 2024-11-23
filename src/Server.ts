@@ -29,16 +29,23 @@ export class Server {
             Config.instance.database.password,
             Config.instance.database.database
         );
+
+        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
+
         this.got = got.extend({
             headers: {
                 'user-agent': `PrivateWebsite-Backend/${Config.version} (TypeScript; Node.js/${process.version}; SALTWOOD/PrivateWebsite-Backend)`
             }
         });
+    }
 
-        this.db.createTable<UserEntity>(UserEntity);
-        this.db.createTable<Article>(Article);
+    public async init(): Promise<void> {
+        if (this.db instanceof MySqlHelper) {
+            await this.db.init();
+        }
 
-        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
+        await this.db.createTable<UserEntity>(UserEntity);
+        await this.db.createTable<Article>(Article);
 
         this.setupRoutes();
     }

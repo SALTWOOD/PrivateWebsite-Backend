@@ -12,5 +12,5 @@ for (const folder of requiredFolders) {
 }
 
 const server = new Server();
-
+await server.init();
 server.start();

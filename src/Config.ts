@@ -6,7 +6,6 @@ export class Config {
     public static version = "1.0.0";
 
     // 定义配置字段
-    public site: { publicUrl: string } = { publicUrl: 'https://example.com' };
     public site_information: { title: string, bio: string } = { title: '', bio: '' };
     public github: { id: string; secret: string, url: { normal: string, api: string } } = { id: '', secret: '', url: { normal: 'github.com', api: 'api.github.com' } };
     public network: { host: string, port: number } = { host: '127.0.0.1', port: 2500 };
