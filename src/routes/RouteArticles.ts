@@ -6,6 +6,13 @@ import { createHash } from "crypto";
 
 export class RouteArticles {
     public static register(inst: RouteFactory): void {
+        inst.app.use("/api/articles", async (req, res, next) => {
+            if (req.method === "POST" || req.method === "PUT" || req.method === "DELETE") {
+                await inst.rss.notify();
+            }
+            next();
+        });
+
         inst.app.get("/api/articles", async (req, res) => {
             const user = Utilities.getUser(req, inst.db);
 
@@ -50,6 +57,7 @@ export class RouteArticles {
             const article = req.body as {
                 title: string,
                 content: string,
+                description: string,
                 published: boolean,
                 background: string
             };
@@ -59,6 +67,7 @@ export class RouteArticles {
             const newArticle = new Article();
             newArticle.title = article.title;
             newArticle.content = article.content;
+            newArticle.description = article.description;
             newArticle.published = Number(article.published);
             newArticle.author = user.id;
             newArticle.background = article.background;
@@ -83,6 +92,7 @@ export class RouteArticles {
                 id: number,
                 title: string | undefined,
                 content: string | undefined,
+                description: string | undefined,
                 published: boolean | undefined,
                 background: string | undefined,
                 oldHash: string
@@ -101,6 +111,7 @@ export class RouteArticles {
             const newArticle = oldArticle;
             if (article.title !== undefined) newArticle.title = article.title;
             if (article.content !== undefined) newArticle.content = article.content;
+            if (article.description !== undefined) newArticle.description = article.description;
             if (article.published !== undefined) newArticle.published = Number(article.published);
             if (article.background !== undefined) newArticle.background = article.background;
             newArticle.author = user.id;

@@ -4,6 +4,7 @@ import { PrimaryKey, Table } from "./SQLiteHelper.js";
 @Table("articles", `
     author INTEGER,
     content TEXT,
+    description TEXT,
     published BOOLEAN,
     publishedAt INTEGER,
     title TEXT,
@@ -14,6 +15,7 @@ import { PrimaryKey, Table } from "./SQLiteHelper.js";
 export class Article {
     public author: number = 0;
     public content: string = "";
+    public description: string = "";
     public published: number = 0;
     public publishedAt: number = Date.now();
     public title: string = "";
