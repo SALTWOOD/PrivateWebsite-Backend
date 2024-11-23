@@ -38,21 +38,21 @@ export class MySqlHelper implements IDatabase {
         }
     
         // 检查表是否已经存在
-        const [_, rows] = await this.mysqlConnection.execute(`SHOW TABLES LIKE ?`, [tableName]);
+        const [_, rows] = await this.mysqlConnection.query(`SHOW TABLES LIKE ?`, [tableName]);
         if (rows.length > 0) {
             // 表存在，检查并添加缺少的列（MySQL暂不支持直接删除列，通常需要创建新表）
             this.updateTableStructure(tableName, schema);
         } else {
             // 表不存在，直接创建
             const createTableSQL = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema})`;
-            await this.mysqlConnection.execute(createTableSQL);
+            await this.mysqlConnection.query(createTableSQL);
         }
     }
 
     // 检查并添加缺失的列
     private async updateTableStructure(tableName: string, schema: string): Promise<void> {
         // 获取现有表的列信息
-        const [_, existingColumns] = await this.mysqlConnection.execute(`DESCRIBE ${tableName}`);
+        const [_, existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`);
     
         // 从 schema 中提取列名
         const newColumns = schema
@@ -72,7 +72,7 @@ export class MySqlHelper implements IDatabase {
     
                 if (columnDefinition) {
                     const alterTableSQL = `ALTER TABLE ${tableName} ADD COLUMN ${columnDefinition}`;
-                    await this.mysqlConnection.execute(alterTableSQL);
+                    await this.mysqlConnection.query(alterTableSQL);
                     console.log(`Added column ${column} to table ${tableName}`);
                 }
             }
@@ -93,14 +93,14 @@ export class MySqlHelper implements IDatabase {
         const values = kvp.map(key => data[key]);
 
         const insertSQL = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-        await this.mysqlConnection.execute(insertSQL, values);
+        await this.mysqlConnection.query(insertSQL, values);
     }
 
     // 查询数据（MySQL）
     public async select<T extends object>(type: { new (): T }, columns: string[], whereClause?: string, params?: any[]): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
         const selectSQL = `SELECT ${columns.join(', ')} FROM ${tableName} ${whereClause ? `WHERE ${whereClause}` : ''}`;
-        const [rows] = await this.mysqlConnection.execute(selectSQL, params);
+        const [rows] = await this.mysqlConnection.query(selectSQL, params);
 
         return rows as T[];
     }
@@ -110,7 +110,7 @@ export class MySqlHelper implements IDatabase {
         const tableName = this.getTableNameByConstructor(type);
         const pk = primaryKeyMap.get(type.constructor as { new (): T }) || 'id';
         const selectSQL = `SELECT * FROM ${tableName} WHERE ${pk} = ?`;
-        const [_, rows] = await this.mysqlConnection.execute(selectSQL, [primaryKey]);
+        const [_, rows] = await this.mysqlConnection.query(selectSQL, [primaryKey]);
 
         if (rows.length > 0) {
             const entity = new type();
@@ -125,7 +125,7 @@ export class MySqlHelper implements IDatabase {
     public async getEntities<T extends object>(type: { new (): T }): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
         const selectSQL = `SELECT * FROM ${tableName}`;
-        const [_, rows] = await this.mysqlConnection.execute(selectSQL);
+        const [_, rows] = await this.mysqlConnection.query(selectSQL);
 
         return rows.map((row: mysql.FieldPacket) => {
             const entity = new type();
@@ -152,7 +152,7 @@ export class MySqlHelper implements IDatabase {
         values.push(data[pk]);
 
         const updateSQL = `UPDATE ${tableName} SET ${columns} WHERE ${pk} = ?`;
-        await this.mysqlConnection.execute(updateSQL, values);
+        await this.mysqlConnection.query(updateSQL, values);
     }
 
     // 删除数据（MySQL）
@@ -163,7 +163,7 @@ export class MySqlHelper implements IDatabase {
         const pk = primaryKeyMap.get(obj.constructor as { new (): T }) || 'id';
 
         const deleteSQL = `DELETE FROM ${tableName} WHERE ${pk} = ?`;
-        await this.mysqlConnection.execute(deleteSQL, [data[pk]]);
+        await this.mysqlConnection.query(deleteSQL, [data[pk]]);
     }
 
     private getTableName<T extends object>(obj: T): string {
