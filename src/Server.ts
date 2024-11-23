@@ -18,6 +18,7 @@ export class Server {
     private app: Express;
     private db: IDatabase;
     private got: Got;
+    // @ts-ignore
     private rss: RssFeed;
 
     constructor() {
@@ -29,8 +30,6 @@ export class Server {
             Config.instance.database.password,
             Config.instance.database.database
         );
-
-        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
 
         this.got = got.extend({
             headers: {
@@ -46,6 +45,8 @@ export class Server {
 
         await this.db.createTable<UserEntity>(UserEntity);
         await this.db.createTable<Article>(Article);
+
+        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
 
         this.setupRoutes();
     }
