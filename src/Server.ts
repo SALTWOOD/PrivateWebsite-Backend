@@ -10,9 +10,27 @@ import path from 'path';
 import { IDatabase } from './database/IDatabase.js';
 import { MySqlHelper } from './database/MySqlHelper.js';
 import { RssFeed } from './RssFeed.js';
+import { Request, Response, NextFunction } from 'express';
 
 // @ts-ignore
 await import('express-async-errors');
+
+// 创建一个中间件函数
+const logMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    // 调用下一个中间件
+    next();
+
+    // 在响应完成后记录访问日志
+    res.on('finish', () => {
+        logAccess(req, res);
+    });
+};
+
+const logAccess = (req: Request, res: Response) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const ip = req.ip;
+    console.log(`${req.method} ${req.originalUrl} ${req.protocol} <${res.statusCode}> - [${ip}] ${userAgent}`);
+};
 
 export class Server {
     private app: Express;
@@ -55,6 +73,7 @@ export class Server {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
+        this.app.use(logMiddleware);
 
         this.app.use('/assets', express.static(path.resolve('./assets')));
         const factory = new RouteFactory(this.app, this.db, this.got, this.rss);

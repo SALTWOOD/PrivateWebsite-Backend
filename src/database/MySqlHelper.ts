@@ -49,15 +49,17 @@ export class MySqlHelper implements IDatabase {
     // 检查并添加缺失的列
     private async updateTableStructure(tableName: string, schema: string): Promise<void> {
         // 获取现有表的列信息
-        const [_, existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`);
+        const [existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`);
 
         // 从 schema 中提取列名
         const newColumns = schema
             .split(',')
-            .map(col => col.trim().split(' ')[0]); // 获取列名
+            .map(col => col.trim().split(' ')[0])
+            // 判断是否全是大写字母，如果是，则过滤掉
+            .filter(col => !/^[A-Z_]+$/.test(col));
 
         // 找出多余的列（MySQL暂不支持直接删除列，通常需要创建新表）
-        const columnsToAdd = newColumns.filter(columnName => !existingColumns.some((col: any) => col.Field === columnName));
+        const columnsToAdd = newColumns.filter(columnName => !(existingColumns as any[]).some((col) => col.Field === columnName));
 
         // 如果有缺失的列，使用 ALTER TABLE 添加
         if (columnsToAdd.length > 0) {
