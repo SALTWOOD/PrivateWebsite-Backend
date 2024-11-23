@@ -6,8 +6,8 @@ export class RssFeed {
     private func: () => Promise<Article[]>;
 
     constructor(func: () => Promise<Article[]>) {
-        this.notify();
         this.func = func;
+        this.notify();
     }
 
     // 将时间戳转换为 RFC 822 格式日期
