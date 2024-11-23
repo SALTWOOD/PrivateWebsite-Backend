@@ -20,7 +20,8 @@ export class MySqlHelper implements IDatabase {
             port: this.mysqlPort,
             user: this.mysqlUser,
             password: this.mysqlPassword,
-            database: this.mysqlDatabase
+            database: this.mysqlDatabase,
+            charset: 'utf8mb4'
         });
         console.log("MySQL connected");
     }
