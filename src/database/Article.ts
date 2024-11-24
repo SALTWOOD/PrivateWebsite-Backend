@@ -1,8 +1,8 @@
-import { PrimaryKey, Table } from "./IDatabase.js";
+import { AutoIncrement, PrimaryKey, Table } from "./IDatabase.js";
 
 @PrimaryKey("id")
 @Table("articles", `
-    id INT,
+    id INT AUTO_INCREMENT,
     author INT,
     content TEXT,
     description VARCHAR(128),
@@ -13,6 +13,7 @@ import { PrimaryKey, Table } from "./IDatabase.js";
     hash CHAR(64),
     PRIMARY KEY (id)
 `)
+@AutoIncrement("id")
 export class Article {
     public author: number = 0;
     public content: string = "";

@@ -2,7 +2,7 @@ import { PrimaryKey, Table } from './IDatabase.js';
 
 // TypeScript 等效的 UserEntity 类
 @Table('users', `
-    id INT AUTO_INCREMENT,
+    id INT,
     username VARCHAR(32) NOT NULL,
     photo VARCHAR(128),
     permission INT DEFAULT 0,

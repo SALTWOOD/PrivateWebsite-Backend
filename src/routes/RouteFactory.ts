@@ -9,6 +9,7 @@ import { RouteRss } from './RouteRss.js';
 import { RssFeed } from '../RssFeed.js';
 import { Article } from '../database/Article.js';
 import { IDatabase } from '../database/IDatabase.js';
+import { RouteComment } from './RouteComment.js';
 
 export class RouteFactory {
     public app: Express;
@@ -30,5 +31,6 @@ export class RouteFactory {
         RouteArticles.register(this);
         RouteUpload.register(this);
         RouteRss.register(this);
+        RouteComment.register(this);
     }
 }

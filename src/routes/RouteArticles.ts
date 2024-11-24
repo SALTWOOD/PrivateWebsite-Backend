@@ -65,8 +65,6 @@ export class RouteArticles {
                 background: string
             };
 
-            const num = (await inst.db.getEntities(Article)).map(a => a.id).reduce((a, b) => Math.max(a, b), 0) + 1;
-
             const newArticle = new Article();
             newArticle.title = article.title;
             newArticle.content = article.content;
@@ -74,10 +72,12 @@ export class RouteArticles {
             newArticle.published = Boolean(article.published);
             newArticle.author = user.id;
             newArticle.background = article.background;
-            newArticle.id = num;
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
 
-            inst.db.insert(newArticle);
+            const id = await inst.db.insert(newArticle);
+            newArticle.id = id;
+            await inst.rss.notify();
+            
             res.json(newArticle.getJson());
         });
 
@@ -121,6 +121,8 @@ export class RouteArticles {
             newArticle.id = article.id;
 
             inst.db.update(newArticle);
+            await inst.rss.notify();
+
             res.json(newArticle.getJson(true));
         });
 
@@ -146,6 +148,8 @@ export class RouteArticles {
             } else {
                 res.status(403).json({ error: "Forbidden" });
             }
+
+            await inst.rss.notify();
         });
     }
 }

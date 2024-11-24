@@ -1,5 +1,5 @@
 import * as mysql from 'mysql2/promise';
-import { mysqlPrimaryKeyMap, mysqlTableNameMap, mysqlTableSchemaMap, IDatabase } from './IDatabase.js';
+import { mysqlPrimaryKeyMap, mysqlTableNameMap, mysqlTableSchemaMap, IDatabase, mysqlAutoIncrementMap } from './IDatabase.js';
 
 export class MySqlHelper implements IDatabase {
     // @ts-ignore
@@ -108,18 +108,19 @@ export class MySqlHelper implements IDatabase {
     }
 
     // 插入数据（MySQL）
-    public async insert<T extends object>(obj: T): Promise<void> {
+    public async insert<T extends object>(obj: T): Promise<number> {
         const tableName = this.getTableName(obj);
         const data = obj as Record<string, any>;
         const ignoredFields = (obj.constructor as any).ignoredFields || [];
-        const kvp = Object.keys(data).filter(key => !ignoredFields.includes(key));
+        const autoIncrementKey = mysqlAutoIncrementMap.get(obj.constructor) || "";
+        const kvp = Object.keys(data).filter(key => !ignoredFields.includes(key) && key !== autoIncrementKey);
 
         const columns = kvp.join(', ');
         const placeholders = kvp.map(() => '?').join(', ');
         const values = kvp.map(key => data[key]);
 
         const insertSQL = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-        await this.mysqlConnection.query(insertSQL, values);
+        return ((await this.mysqlConnection.query(insertSQL, values))[0] as { insertId: number }).insertId;
     }
 
     // 查询数据（MySQL）

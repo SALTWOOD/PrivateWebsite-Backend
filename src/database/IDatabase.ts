@@ -2,6 +2,7 @@
 export const mysqlTableSchemaMap = new Map<Function, string>();
 export const mysqlTableNameMap = new Map<Function, string>();
 export const mysqlPrimaryKeyMap = new Map<Function, string>();
+export const mysqlAutoIncrementMap = new Map<Function, string>();
 
 // 装饰器用于指定表名和表结构
 function Table(tableName: string, mysqlSchema: string) {
@@ -18,6 +19,13 @@ function PrimaryKey(primaryKey: string) {
     };
 }
 
+
+function AutoIncrement(key: string) {
+    return function (constructor: Function) {
+        mysqlAutoIncrementMap.set(constructor, key);
+    };
+}
+
 function Ignore() {
     return function (target: any, propertyName: string) {
         const constructor = target.constructor;
@@ -28,11 +36,11 @@ function Ignore() {
     };
 }
 
-export { Table, Ignore, PrimaryKey };
+export { Table, Ignore, AutoIncrement, PrimaryKey };
 
 export interface IDatabase {
     createTable<T extends object>(type: { new (): T }): Promise<void>;
-    insert<T extends object>(obj: T): Promise<void>;
+    insert<T extends object>(obj: T): Promise<number>;
     select<T extends object>(type: { new (): T }, columns: string[], whereClause?: string, params?: any[]): Promise<T[]>;
     getEntity<T extends object>(type: { new (): T }, primaryKey: number | string): Promise<T | null>;
     getEntities<T extends object>(type: { new (): T }): Promise<T[]>;
