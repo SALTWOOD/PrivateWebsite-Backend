@@ -49,9 +49,9 @@ export class RouteAuth {
                 // 处理数据库操作
                 let dbUser = await inst.db.getEntity<UserEntity>(UserEntity, user.id);
                 if (dbUser) {
-                    await inst.db.update(await user.toUserWithDbEntity(dbUser));
+                    await inst.db.update<UserEntity>(UserEntity, await user.toUserWithDbEntity(dbUser));
                 } else {
-                    await inst.db.insert<UserEntity>(user.toUserEntity());
+                    await inst.db.insert<UserEntity>(UserEntity, user.toUserEntity());
                 }
         
                 // 生成JWT并设置cookie

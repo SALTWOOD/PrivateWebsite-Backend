@@ -108,8 +108,8 @@ export class MySqlHelper implements IDatabase {
     }
 
     // 插入数据（MySQL）
-    public async insert<T extends object>(obj: T): Promise<number> {
-        const tableName = this.getTableName(obj);
+    public async insert<T extends object>(type: { new(): T }, obj: T): Promise<number> {
+        const tableName = this.getTableName(type);
         const data = obj as Record<string, any>;
         const ignoredFields = (obj.constructor as any).ignoredFields || [];
         const autoIncrementKey = mysqlAutoIncrementMap.get(obj.constructor) || "";
@@ -162,8 +162,8 @@ export class MySqlHelper implements IDatabase {
     }
 
     // 更新数据（MySQL）
-    public async update<T extends object>(obj: T): Promise<void> {
-        const tableName = this.getTableName(obj);
+    public async update<T extends object>(type: { new(): T }, obj: T): Promise<void> {
+        const tableName = this.getTableName(type);
         const data = obj as Record<string, any>;
         const ignoredFields = (obj.constructor as any).ignoredFields || [];
 
@@ -198,8 +198,8 @@ export class MySqlHelper implements IDatabase {
         await this.mysqlConnection.end();
     }
 
-    private getTableName<T extends object>(obj: T): string {
-        const constructor = obj.constructor;
+    private getTableName<T extends object>(type: { new(): T }): string {
+        const constructor = (new type() as Object).constructor;
         return this.getTableNameByConstructor<T>(constructor as { new(): T });
     }
 

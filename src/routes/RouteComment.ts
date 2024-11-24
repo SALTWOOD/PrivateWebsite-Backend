@@ -72,7 +72,7 @@ export class RouteComment {
                 }
             }
         
-            await inst.db.insert<Comment>(comment);
+            await inst.db.insert<Comment>(Comment, comment);
             res.json(comment.getJson());
         });        
 
@@ -111,7 +111,7 @@ export class RouteComment {
             comment.content = body.content;
             comment.hash = createHash('sha1').update(comment.content).digest('hex');
 
-            await inst.db.update<Comment>(comment);
+            await inst.db.update<Comment>(Comment, comment);
             res.json(comment.getJson());
         });
 

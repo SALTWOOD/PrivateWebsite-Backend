@@ -74,7 +74,7 @@ export class RouteArticles {
             newArticle.background = article.background;
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
 
-            const id = await inst.db.insert(newArticle);
+            const id = await inst.db.insert(Article, newArticle);
             newArticle.id = id;
             await inst.rss.notify();
             
@@ -120,7 +120,7 @@ export class RouteArticles {
             newArticle.author = user.id;
             newArticle.id = article.id;
 
-            inst.db.update(newArticle);
+            inst.db.update(Article, newArticle);
             await inst.rss.notify();
 
             res.json(newArticle.getJson(true));
