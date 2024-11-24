@@ -11,7 +11,7 @@ import { createHash } from "crypto";
     article INT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     hash CHAR(40),
-    FOREIGN KEY (parent_id) REFERENCES comments(id),
+    FOREIGN KEY (parent) REFERENCES comments(id),
     PRIMARY KEY (id)
 `)
 @AutoIncrement("id")
