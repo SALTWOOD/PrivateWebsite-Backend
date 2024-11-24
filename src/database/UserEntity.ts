@@ -6,6 +6,7 @@ import { PrimaryKey, Table } from './IDatabase.js';
     username VARCHAR(32) NOT NULL,
     photo VARCHAR(128),
     permission INT DEFAULT 0,
+    notifications INT DEFAULT 0,
     PRIMARY KEY (id)
 `)
 @PrimaryKey('id')
@@ -14,6 +15,7 @@ export class UserEntity {
     public username: string;
     public photo: string;
     public permission: number = 0;
+    public notifications: number = 0;
 
     constructor(id: number = 0, username: string = '', photo: string = '') {
         this.id = id;

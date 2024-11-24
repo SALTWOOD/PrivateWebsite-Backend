@@ -2,8 +2,12 @@ import { Request } from "express";
 import { UserEntity } from "./database/UserEntity.js";
 import JwtHelper from "./JwtHelper.js";
 import { IDatabase } from "./database/IDatabase.js";
+import { Article } from "./database/Article.js";
+import { Comment } from "./database/Comment.js";
 
 export class Utilities {
+    public static MAX_DEPTH = 4;
+
     public static getDate(after: number = 0, unit: "ms" | "s" | "min" | "hour" | "day" | "month" | "year" = "day"): Date {
         switch (unit) {
             case "ms":
@@ -22,6 +26,38 @@ export class Utilities {
                 return new Date(Date.now() + after * 365 * 24 * 60 * 60 * 1000);
         }
     }
+
+    public static async checkCommentChainDepth(comment: Comment, db: IDatabase): Promise<boolean> {
+        let depth = 0;
+        let currentParent = comment;
+
+        while (currentParent.parent !== null) {
+            let current = await db.getEntity<Comment>(Comment, currentParent.parent);
+
+            if (!current) {
+                break;
+            }
+            currentParent = current;
+            depth++;
+            if (depth >= this.MAX_DEPTH) return false;
+        }
+
+        return true;
+    }
+
+    public static async getReplies(parentId: number, db: IDatabase, depth: number = 0): Promise<Comment[]> {
+        if (depth >= this.MAX_DEPTH) return [];
+
+        // 获取子评论
+        const childComments = await db.select<Comment>(Comment, ['*'], `parent = ${parentId}`);
+
+        // 递归查询子评论的子评论
+        for (let comment of childComments) {
+            comment.replies = await this.getReplies(comment.id, db, depth + 1);
+        }
+
+        return childComments;
+    };
 
     public static async getUser(req: Request, db: IDatabase): Promise<UserEntity | null> {
         try {

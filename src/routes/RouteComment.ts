@@ -7,12 +7,26 @@ import { Request, Response } from "express";
 
 export class RouteComment {
     public static register(inst: RouteFactory): void {
-
         inst.app.get('/api/comment/:id', async (req: Request, res: Response) => {
             const id = Number(req.params.id) || 0;
-            const comment = await inst.db.select<Comment>(Comment, ['*'], `article = ${id}`);
-            res.json(comment);
-        });
+            
+            // 获取文章评论
+            const article = await inst.db.getEntity<Article>(Article, id);
+            if (!article) {
+                res.status(404).json({ error: 'Article not found' });
+                return;
+            }
+        
+            // 获取顶级评论（没有父评论的评论）
+            const comments = await inst.db.select<Comment>(Comment, ['*'], `article = ${id} AND parent IS NULL`);
+    
+            // 遍历顶级评论，获取子评论
+            for (let comment of comments) {
+                comment.replies = await Utilities.getReplies(comment.id, inst.db, 0);
+            }
+        
+            res.json(comments);
+        });        
 
         inst.app.post('/api/comment/:id', async (req: Request, res: Response) => {
             const user = await Utilities.getUser(req, inst.db);
@@ -20,31 +34,41 @@ export class RouteComment {
                 res.status(401).json({ error: 'Unauthorized' });
                 return;
             }
-
+            
             const articleId = Number(req.params.id) || 0;
-            let articles: Article[] = [];
-
-            if ((articles = await inst.db.select<Article>(Article, ['id'], `id = ${articleId}`)).length === 0) {
+            const body = req.body as {
+                content: string,
+                parent: number | null
+            };
+        
+            const article = await inst.db.getEntity<Article>(Article, articleId);
+            if (!article) {
                 res.status(404).json({ error: 'Article not found' });
                 return;
             }
-
-            const body = req.body as {
-                content: string,
-                parent: number
-            };
-
-            const comment = Comment.create(user, body.content, body.parent, articles[0]);
-
-            const parent = await inst.db.select<Comment>(Comment, ['article'], `id = ${comment.parent}`);
-            if (parent.length === 0 || parent.some(p => p.article !== articles[0].id)) {
-                res.status(400).json({ error: 'Invalid parent comment' });
+        
+            let comment = Comment.create(user, body.content, body.parent, article);
+        
+            if (body.parent !== null) {
+                const parent = await inst.db.getEntity<Comment>(Comment, body.parent);
+                if (!parent) {
+                    res.status(404).json({ error: 'Parent comment not found' });
+                    return;
+                }
+                if (parent.article !== articleId) {
+                    res.status(400).json({ error: 'Out of article scope' });
+                    return;
+                }
+        
+                if (!await Utilities.checkCommentChainDepth(comment, inst.db)) {
+                    res.status(400).json({ error: 'Comment chain depth exceeded' });
+                    return;
+                }
             }
-
-            const id = await inst.db.insert<Comment>(comment);
-            comment.id = id;
-            res.json(comment);
-        });
+        
+            await inst.db.insert<Comment>(comment);
+            res.json(comment.getJson());
+        });        
 
         inst.app.put('/api/comment/:id/:comment', async (req: Request, res: Response) => {
             const user = await Utilities.getUser(req, inst.db);
@@ -82,18 +106,19 @@ export class RouteComment {
             comment.hash = createHash('sha1').update(comment.content).digest('hex');
 
             await inst.db.update<Comment>(comment);
-            res.json(comment);
+            res.json(comment.getJson());
         });
 
-        inst.app.delete('/api/comment/:id', async (req: Request, res: Response) => {
+        inst.app.delete('/api/comment/:id/:commentId', async (req: Request, res: Response) => {
             const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).json({ error: 'Unauthorized' });
                 return;
             }
 
-            const id = Number(req.params.id) || 0;
-            const comments = await inst.db.select<Comment>(Comment, ['*'], `id = ${id}`);
+            const id = Number(req.params.commentId) || 0;
+            const articleId = Number(req.params.id) || 0;
+            const comments = await inst.db.select<Comment>(Comment, ['*'], `id = ${id} AND article = ${articleId}`);
 
             if (comments.length === 0) {
                 res.status(404).json({ error: 'Comment not found' });

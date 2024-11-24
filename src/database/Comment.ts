@@ -1,5 +1,5 @@
 import { Article } from "./Article.js";
-import { AutoIncrement, PrimaryKey, Table } from "./IDatabase.js";
+import { AutoIncrement, Ignore, PrimaryKey, Table } from "./IDatabase.js";
 import { UserEntity } from "./UserEntity.js";
 import { createHash } from "crypto";
 
@@ -24,6 +24,8 @@ export class Comment {
     public article: number;
     public createdAt: Date;
     public hash: string;
+    @Ignore()
+    public replies: Comment[] = [];
 
     constructor() {
         this.id = 0;
@@ -43,5 +45,10 @@ export class Comment {
         comment.article = article.id;
         comment.hash = createHash("sha1").update(content).digest("hex");
         return comment;
+    }
+
+    public getJson(): any {
+        const ignoreReplies = ({replies, ...rest} : any) => rest;
+        return ignoreReplies(this);
     }
 }
