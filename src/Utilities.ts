@@ -45,7 +45,7 @@ export class Utilities {
         return true;
     }
 
-    public static async getReplies(parentId: number | null, article: Article, db: IDatabase, depth: number = 0): Promise<(Comment & { username: string | null })[]> {
+    public static async getReplies(parentId: number | null, article: Article, db: IDatabase, depth: number = 0): Promise<(Comment & { user: UserEntity | null })[]> {
         if (depth >= this.MAX_DEPTH) return [];
 
         // 获取子评论
@@ -59,8 +59,8 @@ export class Utilities {
         }
 
         return await Promise.all(childComments.map(async comment => ({
-            ...comment,
-            username: (await db.getEntity(UserEntity, comment.user))?.username || null,
+            ...comment.getJson(true),
+            user: await db.getEntity(UserEntity, comment.user) || null,
             getJson: comment.getJson
         })));
     };
