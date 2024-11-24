@@ -67,14 +67,14 @@ export class RouteComment {
                     res.status(400).json({ error: 'Out of article scope' });
                     return;
                 }
-
                 if (!await Utilities.checkCommentChainDepth(comment, inst.db)) {
                     res.status(400).json({ error: 'Comment chain depth exceeded' });
                     return;
                 }
             }
 
-            await inst.db.insert<Comment>(Comment, comment);
+            const id = await inst.db.insert<Comment>(Comment, comment);
+            comment.id = id;
             res.json({
                 ...comment.getJson(true),
                 user: await inst.db.getEntity<UserEntity>(UserEntity, comment.user)
