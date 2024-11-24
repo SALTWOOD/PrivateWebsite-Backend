@@ -70,8 +70,8 @@ export class RouteComment {
         
             await inst.db.insert<Comment>(Comment, comment);
             res.json({
-                ...comment.getJson(),
-                username: user.username
+                ...comment.getJson(true),
+                user
             });
         });        
 
@@ -112,8 +112,8 @@ export class RouteComment {
 
             await inst.db.update<Comment>(Comment, comment);
             res.json({
-                ...comment.getJson(),
-                username: user.username
+                ...comment.getJson(true),
+                user
             });
         });
 
