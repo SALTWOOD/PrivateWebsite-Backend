@@ -30,8 +30,8 @@ services:
       - internal_network
     restart: unless-stopped
     # 仅在容器内网暴露 MySQL 服务
-    # ports:
-    #   - "3306:3306"  # 暴露到宿主机端口 3306，可取消注释暴露到公网
+    ports:
+      - "127.0.0.1:3306:3306"  # 暴露到宿主机端口 3306，可取消注释暴露到公网
 
 volumes:
   mysql_data:
