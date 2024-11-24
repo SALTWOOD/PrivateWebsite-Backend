@@ -10,6 +10,7 @@ import { IDatabase } from './database/IDatabase.js';
 import { MySqlHelper } from './database/MySqlHelper.js';
 import { RssFeed } from './RssFeed.js';
 import { Request, Response, NextFunction } from 'express';
+import { Comment } from './database/Comment.js';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -62,6 +63,7 @@ export class Server {
 
         await this.db.createTable<UserEntity>(UserEntity);
         await this.db.createTable<Article>(Article);
+        await this.db.createTable<Comment>(Comment);
 
         this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
 
