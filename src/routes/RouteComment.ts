@@ -11,25 +11,24 @@ export class RouteComment {
         inst.app.get('/api/comment/:id', async (req: Request, res: Response) => {
             const page = Number(req.query.page) || 0;
             const id = Number(req.params.id) || 0;
-            
+
             // 获取文章评论
             const article = await inst.db.getEntity<Article>(Article, id);
             if (!article) {
                 res.status(404).json({ error: 'Article not found' });
                 return;
             }
-        
+
             // 获取顶级评论（没有父评论的评论）
             const comments = await Utilities.getReplies(null, article, inst.db, 0);
-            console.log(comments);
-        
+
             res.json({
                 page: page,
                 total: comments.length,
                 current: [page * 10, (page + 1) * 10],
                 comments: comments.slice(page * 10, (page + 1) * 10)
             });
-        });        
+        });
 
         inst.app.post('/api/comment/:id', async (req: Request, res: Response) => {
             const user = await Utilities.getUser(req, inst.db);
@@ -37,21 +36,27 @@ export class RouteComment {
                 res.status(401).json({ error: 'Unauthorized' });
                 return;
             }
-            
+
+            if ((await inst.db.run(`SELECT COUNT(*) FROM comments WHERE user = ${user.id}`))[0]['COUNT(*)'] > 5000
+                || (await inst.db.run("SELECT COUNT(*) FROM comments"))[0]['COUNT(*)'] > 75000) {
+                res.status(403).json({ error: 'Forbidden' });
+                return;
+            }
+
             const articleId = Number(req.params.id) || 0;
             const body = req.body as {
                 content: string,
                 parent: number | null
             };
-        
+
             const article = await inst.db.getEntity<Article>(Article, articleId);
             if (!article) {
                 res.status(404).json({ error: 'Article not found' });
                 return;
             }
-        
+
             let comment = Comment.create(user, body.content, body.parent, article);
-        
+
             if (body.parent !== null) {
                 const parent = await inst.db.getEntity<Comment>(Comment, body.parent);
                 if (!parent) {
@@ -62,19 +67,19 @@ export class RouteComment {
                     res.status(400).json({ error: 'Out of article scope' });
                     return;
                 }
-        
+
                 if (!await Utilities.checkCommentChainDepth(comment, inst.db)) {
                     res.status(400).json({ error: 'Comment chain depth exceeded' });
                     return;
                 }
             }
-        
+
             await inst.db.insert<Comment>(Comment, comment);
             res.json({
                 ...comment.getJson(true),
                 user: await inst.db.getEntity<UserEntity>(UserEntity, comment.user)
             });
-        });        
+        });
 
         inst.app.put('/api/comment/:id/:comment', async (req: Request, res: Response) => {
             const user = await Utilities.getUser(req, inst.db);
@@ -138,7 +143,7 @@ export class RouteComment {
                 res.status(403).json({ error: 'Forbidden' });
                 return;
             }
-            
+
             const comment = comments[0];
             await inst.db.remove<Comment>(Comment, comment);
             res.json({ success: true });

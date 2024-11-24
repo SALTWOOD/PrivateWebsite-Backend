@@ -215,4 +215,8 @@ export class MySqlHelper implements IDatabase {
         }
         return tableName;
     }
+
+    public async run(sql: string, params?: any[]): Promise<any> {
+        return (await this.mysqlConnection.query(sql, params))[0];
+    }
 }

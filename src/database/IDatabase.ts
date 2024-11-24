@@ -47,4 +47,5 @@ export interface IDatabase {
     update<T extends object>(type: { new (): T }, obj: T): Promise<void>;
     remove<T extends object>(type: { new (): T }, obj: T): Promise<void>;
     close(): Promise<void>;
+    run(sql: string, params?: any[]): Promise<any>;
 }
