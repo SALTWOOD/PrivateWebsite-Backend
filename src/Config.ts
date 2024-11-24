@@ -22,7 +22,8 @@ export class Config {
         friends: {
             name: string,
             url: string,
-            avatar: string
+            avatar: string,
+            description: string
         }[]
     } = { friends: [] };
 
