@@ -8,6 +8,7 @@ import { Request, Response } from "express";
 export class RouteComment {
     public static register(inst: RouteFactory): void {
         inst.app.get('/api/comment/:id', async (req: Request, res: Response) => {
+            const page = Number(req.query.page) || 0;
             const id = Number(req.params.id) || 0;
             
             // 获取文章评论
@@ -25,7 +26,12 @@ export class RouteComment {
                 comment.replies = await Utilities.getReplies(comment.id, inst.db, 0);
             }
         
-            res.json(comments);
+            res.json({
+                page: page,
+                total: comments.length,
+                current: [page * 10, (page + 1) * 10],
+                comments: comments.slice(page * 10, (page + 1) * 10)
+            });
         });        
 
         inst.app.post('/api/comment/:id', async (req: Request, res: Response) => {
