@@ -127,7 +127,7 @@ export class MySqlHelper implements IDatabase {
     public async select<T extends object>(type: { new(): T }, columns: string[], whereClause?: string, params?: any[]): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
         const selectSQL = `SELECT ${columns.join(', ')} FROM ${tableName} ${whereClause ? `WHERE ${whereClause}` : ''}`;
-        const rows = (await this.mysqlConnection.query(selectSQL, params))[0].map((row: any) => {
+        const rows = ((await this.mysqlConnection.query(selectSQL, params))[0] as any[]).map((row: any) => {
             const entity = new type();
             Object.assign(entity, row);
             return entity;
