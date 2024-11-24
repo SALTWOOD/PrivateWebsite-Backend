@@ -204,11 +204,10 @@ export class MySqlHelper implements IDatabase {
     }
 
     // 根据类型推断表名
-    private getTableNameByConstructor<T extends object>(type: { new(): T }): string {
-        const instance = new type();
-        const tableName = mysqlTableNameMap.get(instance.constructor as any);
+    private getTableNameByConstructor<T extends object>(constructor: { new(): T }): string {
+        const tableName = mysqlTableNameMap.get(constructor);
         if (!tableName) {
-            throw new Error(`Table name for type ${type.name} not defined`);
+            throw new Error(`Table name for type ${constructor.name} not defined: ${tableName}`);
         }
         return tableName;
     }
