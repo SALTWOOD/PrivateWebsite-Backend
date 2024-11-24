@@ -16,7 +16,7 @@ export class RssFeed {
         return date.toUTCString();
     }
 
-    public get data(): string { return this.data; }
+    public get data(): string { return this._data; }
 
     // 生成 RSS 2.0 格式
     public async generate(): Promise<string> {
