@@ -2,21 +2,11 @@ import { PrimaryKey, Table } from "./IDatabase.js";
 
 @PrimaryKey("id")
 @Table("articles", `
-    author INTEGER,
-    content TEXT,
-    description TEXT,
-    published INTEGER,
-    publishedAt INTEGER,
-    title TEXT,
-    id INTEGER,
-    background TEXT,
-    hash TEXT
-`, `
     id INT,
     author INT,
     content TEXT,
     description VARCHAR(128),
-    published INT,
+    published BOOLEAN,
     publishedAt BIGINT,
     title VARCHAR(24),
     background TEXT,
@@ -27,7 +17,7 @@ export class Article {
     public author: number = 0;
     public content: string = "";
     public description: string = "";
-    public published: number = 0;
+    public published: boolean = false;
     public publishedAt: number = Date.now();
     public title: string = "";
     public id: number = 0;

@@ -1,16 +1,11 @@
 // 表的定义映射
-export const tableSchemaMap = new Map<Function, string>();
-export const tableNameMap = new Map<Function, string>();
-export const primaryKeyMap = new Map<Function, string>();
 export const mysqlTableSchemaMap = new Map<Function, string>();
 export const mysqlTableNameMap = new Map<Function, string>();
 export const mysqlPrimaryKeyMap = new Map<Function, string>();
 
 // 装饰器用于指定表名和表结构
-function Table(tableName: string, schema: string, mysqlSchema: string) {
+function Table(tableName: string, mysqlSchema: string) {
     return function (constructor: Function) {
-        tableSchemaMap.set(constructor, schema);
-        tableNameMap.set(constructor, tableName);
         mysqlTableSchemaMap.set(constructor, mysqlSchema);
         mysqlTableNameMap.set(constructor, tableName);
     };
@@ -19,7 +14,6 @@ function Table(tableName: string, schema: string, mysqlSchema: string) {
 
 function PrimaryKey(primaryKey: string) {
     return function (constructor: Function) {
-        primaryKeyMap.set(constructor, primaryKey);
         mysqlPrimaryKeyMap.set(constructor, primaryKey);
     };
 }

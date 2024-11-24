@@ -2,13 +2,9 @@ import { Table } from './IDatabase.js';
 import { UserEntity } from './UserEntity.js';
 
 @Table('github_users', `
-    id INTEGER PRIMARY KEY,
-    login TEXT,
-    avatar_url TEXT
-`, `
     id INT,
-    login VARCHAR(64),
-    avatar_url VARCHAR(255),
+    login VARCHAR(32),
+    avatar_url VARCHAR(128),
     PRIMARY KEY (id)
 `)
 export class GitHubUser {

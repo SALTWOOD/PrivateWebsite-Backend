@@ -1,5 +1,4 @@
 import express, { Express } from 'express';
-import { SQLiteHelper } from './database/SQLiteHelper.js';
 import { RouteFactory } from './routes/RouteFactory.js';
 import got, { Got } from 'got';
 import { Config } from './Config.js';
@@ -41,7 +40,7 @@ export class Server {
 
     constructor() {
         this.app = express();
-        this.db = Config.instance.database.type ==='sqlite'? new SQLiteHelper("./data/database.sqlite") : new MySqlHelper(
+        this.db = new MySqlHelper(
             Config.instance.database.host,
             Config.instance.database.port,
             Config.instance.database.username,

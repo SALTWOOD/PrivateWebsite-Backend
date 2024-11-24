@@ -1,6 +1,5 @@
 import { Request } from "express";
 import { UserEntity } from "./database/UserEntity.js";
-import { SQLiteHelper } from "./database/SQLiteHelper.js";
 import JwtHelper from "./JwtHelper.js";
 import { IDatabase } from "./database/IDatabase.js";
 

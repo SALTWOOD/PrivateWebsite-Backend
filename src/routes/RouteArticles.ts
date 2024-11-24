@@ -71,7 +71,7 @@ export class RouteArticles {
             newArticle.title = article.title;
             newArticle.content = article.content;
             newArticle.description = article.description;
-            newArticle.published = Number(article.published);
+            newArticle.published = Boolean(article.published);
             newArticle.author = user.id;
             newArticle.background = article.background;
             newArticle.id = num;
@@ -115,7 +115,7 @@ export class RouteArticles {
             if (article.title !== undefined) newArticle.title = article.title;
             if (article.content !== undefined) newArticle.content = article.content;
             if (article.description !== undefined) newArticle.description = article.description;
-            if (article.published !== undefined) newArticle.published = Number(article.published);
+            if (article.published !== undefined) newArticle.published = Boolean(article.published);
             if (article.background !== undefined) newArticle.background = article.background;
             newArticle.author = user.id;
             newArticle.id = article.id;

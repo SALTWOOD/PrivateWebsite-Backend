@@ -1,5 +1,4 @@
 import { Express } from 'express';
-import { SQLiteHelper } from '../database/SQLiteHelper.js';
 import { RouteAuth } from './RouteAuth.js';
 import got, { type Got } from 'got';
 import { RouteUser } from './RouteUser.js';
