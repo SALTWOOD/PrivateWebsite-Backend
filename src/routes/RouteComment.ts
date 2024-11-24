@@ -4,6 +4,7 @@ import { Comment } from "../database/Comment.js";
 import { Utilities } from "../Utilities.js";
 import { RouteFactory } from "./RouteFactory.js";
 import { Request, Response } from "express";
+import { UserEntity } from "../database/UserEntity.js";
 
 export class RouteComment {
     public static register(inst: RouteFactory): void {
@@ -71,7 +72,7 @@ export class RouteComment {
             await inst.db.insert<Comment>(Comment, comment);
             res.json({
                 ...comment.getJson(true),
-                user
+                user: await inst.db.getEntity<UserEntity>(UserEntity, comment.user)
             });
         });        
 
@@ -96,7 +97,7 @@ export class RouteComment {
                 return;
             }
 
-            if (comments[0].user !== user.id) {
+            if (comments[0].user !== user.id && !user.permission) {
                 res.status(403).json({ error: 'Forbidden' });
                 return;
             }
@@ -113,7 +114,7 @@ export class RouteComment {
             await inst.db.update<Comment>(Comment, comment);
             res.json({
                 ...comment.getJson(true),
-                user
+                user: await inst.db.getEntity<UserEntity>(UserEntity, comment.user)
             });
         });
 
@@ -133,7 +134,7 @@ export class RouteComment {
                 return;
             }
 
-            if (comments[0].user !== user.id) {
+            if (comments[0].user !== user.id && !user.permission) {
                 res.status(403).json({ error: 'Forbidden' });
                 return;
             }
