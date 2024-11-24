@@ -199,8 +199,8 @@ export class MySqlHelper implements IDatabase {
     }
 
     private getTableName<T extends object>(obj: T): string {
-        const constructor = (obj as Object).constructor;
-        return this.getTableNameByConstructor(constructor as { new(): T });
+        const constructor = obj.constructor;
+        return this.getTableNameByConstructor<T>(constructor as { new(): T });
     }
 
     // 根据类型推断表名
