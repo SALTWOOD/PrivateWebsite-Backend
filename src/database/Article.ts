@@ -8,6 +8,7 @@ import { AutoIncrement, PrimaryKey, Table } from "./IDatabase.js";
     description VARCHAR(128),
     published BOOLEAN,
     publishedAt BIGINT,
+    lastUpdated BIGINT,
     title VARCHAR(24),
     background TEXT,
     hash CHAR(64),
@@ -20,6 +21,7 @@ export class Article {
     public description: string = "";
     public published: boolean = false;
     public publishedAt: number = Date.now();
+    public lastUpdated: number = Date.now();
     public title: string = "";
     public id: number = 0;
     public background: string = "";

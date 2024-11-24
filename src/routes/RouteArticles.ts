@@ -73,6 +73,7 @@ export class RouteArticles {
             newArticle.author = user.id;
             newArticle.background = article.background;
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
+            newArticle.lastUpdated = Date.now();
 
             const id = await inst.db.insert(Article, newArticle);
             newArticle.id = id;
@@ -119,6 +120,7 @@ export class RouteArticles {
             if (article.background !== undefined) newArticle.background = article.background;
             newArticle.author = user.id;
             newArticle.id = article.id;
+            newArticle.lastUpdated = Date.now();
 
             inst.db.update(Article, newArticle);
             await inst.rss.notify();
