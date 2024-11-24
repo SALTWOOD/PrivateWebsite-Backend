@@ -59,7 +59,7 @@ export class Utilities {
         }
 
         return await Promise.all(childComments.map(async comment => ({
-            ...comment.getJson(true),
+            ...comment.getJson(true, false),
             user: await db.getEntity(UserEntity, comment.user) || null,
             getJson: comment.getJson
         })));

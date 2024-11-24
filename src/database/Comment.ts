@@ -47,10 +47,11 @@ export class Comment {
         return comment;
     }
 
-    public getJson(hideUser: boolean = false): any {
+    public getJson(hideUser: boolean = false, hideReplies: boolean = true): any {
         const ignoreReplies = ({replies, ...rest} : any) => rest;
         const ignoreUser = ({user, ...rest} : any) => rest;
-        let json = ignoreReplies(this);
+        let json = this;
+        if (hideReplies) json = ignoreReplies(json);
         if (!hideUser) json = ignoreUser(json);
         return json;
     }
