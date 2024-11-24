@@ -6,5 +6,9 @@ export class RouteSite {
         inst.app.get("/api/site/info", async (req, res) => {
             res.json(Config.instance.site_information);
         });
+
+        inst.app.get("/api/site/friends", async (req, res) => {
+            res.json(Config.instance.site.friends);
+        });
     }
 }

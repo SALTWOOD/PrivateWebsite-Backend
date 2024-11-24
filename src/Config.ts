@@ -18,6 +18,13 @@ export class Config {
         password: "mysql",
         database: "private_website_db"
     }
+    public site: {
+        friends: {
+            name: string,
+            url: string,
+            avatar: string
+        }[]
+    } = { friends: [] };
 
     private constructor() {
         // 读取并解析 json 文件
