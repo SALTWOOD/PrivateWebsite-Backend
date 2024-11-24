@@ -19,7 +19,8 @@ export class RouteComment {
             }
         
             // 获取顶级评论（没有父评论的评论）
-            const comments = await Utilities.getReplies(null, article, inst.db, 4);
+            const comments = await Utilities.getReplies(null, article, inst.db, 0);
+            console.log(comments);
         
             res.json({
                 page: page,

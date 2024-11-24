@@ -49,7 +49,9 @@ export class Utilities {
         if (depth >= this.MAX_DEPTH) return [];
 
         // 获取子评论
-        const childComments = parentId === null? await db.select<Comment>(Comment, ['*'], `article = ${article.id}`) : await db.select<Comment>(Comment, ['*'], `parent = ${parentId}`);
+        const childComments = parentId === null
+            ? await db.select<Comment>(Comment, ['*'], `article = ${article.id}`)
+            : await db.select<Comment>(Comment, ['*'], `parent = ${parentId} AND article = ${article.id}`);
 
         // 递归查询子评论的子评论
         for (let comment of childComments) {
