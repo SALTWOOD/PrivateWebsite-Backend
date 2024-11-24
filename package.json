@@ -21,14 +21,11 @@
   "homepage": "https://github.com/SALTWOOD/PrivateWebsite-Backend#readme",
   "dependencies": {
     "@tsconfig/node22": "^22.0.0",
-    "better-sqlite3": "^11.5.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
-    "env-var": "^7.5.0",
     "express": "^4.21.1",
     "express-async-errors": "^3.1.1",
     "got": "^14.4.4",
-    "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.4",
@@ -37,7 +34,6 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.11",
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
