@@ -19,12 +19,7 @@ export class RouteComment {
             }
         
             // 获取顶级评论（没有父评论的评论）
-            const comments = await inst.db.select<Comment>(Comment, ['*'], `article = ${id} AND parent IS NULL`);
-    
-            // 遍历顶级评论，获取子评论
-            for (let comment of comments) {
-                comment.replies = await Utilities.getReplies(comment.id, inst.db, 0);
-            }
+            const comments = await Utilities.getReplies(null, article, inst.db, 4);
         
             res.json({
                 page: page,
@@ -73,7 +68,10 @@ export class RouteComment {
             }
         
             await inst.db.insert<Comment>(Comment, comment);
-            res.json(comment.getJson());
+            res.json({
+                ...comment.getJson(),
+                username: user.username
+            });
         });        
 
         inst.app.put('/api/comment/:id/:comment', async (req: Request, res: Response) => {
@@ -112,7 +110,10 @@ export class RouteComment {
             comment.hash = createHash('sha1').update(comment.content).digest('hex');
 
             await inst.db.update<Comment>(Comment, comment);
-            res.json(comment.getJson());
+            res.json({
+                ...comment.getJson(),
+                username: user.username
+            });
         });
 
         inst.app.delete('/api/comment/:id/:commentId', async (req: Request, res: Response) => {

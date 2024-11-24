@@ -45,18 +45,22 @@ export class Utilities {
         return true;
     }
 
-    public static async getReplies(parentId: number, db: IDatabase, depth: number = 0): Promise<Comment[]> {
+    public static async getReplies(parentId: number | null, article: Article, db: IDatabase, depth: number = 0): Promise<(Comment & { username: string | null })[]> {
         if (depth >= this.MAX_DEPTH) return [];
 
         // 获取子评论
-        const childComments = await db.select<Comment>(Comment, ['*'], `parent = ${parentId}`);
+        const childComments = parentId === null? await db.select<Comment>(Comment, ['*'], `article = ${article.id}`) : await db.select<Comment>(Comment, ['*'], `parent = ${parentId}`);
 
         // 递归查询子评论的子评论
         for (let comment of childComments) {
-            comment.replies = await this.getReplies(comment.id, db, depth + 1);
+            comment.replies = await this.getReplies(comment.id, article, db, depth + 1);
         }
 
-        return childComments;
+        return await Promise.all(childComments.map(async comment => ({
+            ...comment,
+            username: (await db.getEntity(UserEntity, comment.user))?.username || null,
+            getJson: comment.getJson
+        })));
     };
 
     public static async getUser(req: Request, db: IDatabase): Promise<UserEntity | null> {
