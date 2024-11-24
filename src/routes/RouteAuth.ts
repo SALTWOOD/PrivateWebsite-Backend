@@ -40,23 +40,23 @@ export class RouteAuth {
                     }
                 }).json<{ id: number, login: string, avatar_url: string, name: string }>();
              
-                const user = GitHubUser.create(
+                const githubUser = GitHubUser.create(
                     userResponse.id,
                     userResponse.name || userResponse.login || '',
                     userResponse.avatar_url
                 );
         
                 // 处理数据库操作
-                let dbUser = await inst.db.getEntity<UserEntity>(UserEntity, user.id);
+                let dbUser = await inst.db.getEntity<UserEntity>(UserEntity, githubUser.id);
                 if (dbUser) {
-                    await inst.db.update<UserEntity>(UserEntity, await user.toUserWithDbEntity(dbUser));
+                    await inst.db.update<UserEntity>(UserEntity, await githubUser.toUserWithDbEntity(dbUser));
                 } else {
-                    await inst.db.insert<UserEntity>(UserEntity, user.toUserEntity());
+                    await inst.db.insert<UserEntity>(UserEntity, githubUser.toUserEntity());
                 }
         
                 // 生成JWT并设置cookie
                 const token = JwtHelper.instance.issueToken({
-                    userId: user.id,
+                    userId: githubUser.id,
                     clientId: Config.instance.github.id
                 }, "user", 60 * 60 * 24 * Config.instance.user.tokenExpiration);
         
@@ -66,11 +66,9 @@ export class RouteAuth {
                     sameSite: 'lax',
                 });
 
-                res.status(200).json({
-                    avatar_url: user.avatar_url,
-                    username: user.login,
-                    id: user.id
-                });
+                const user = await inst.db.getEntity<UserEntity>(UserEntity, githubUser.id);
+
+                res.status(200).json(user);
             } catch (error) {
                 const err = error as Error;
                 console.error('Error processing GitHub OAuth:', err);
