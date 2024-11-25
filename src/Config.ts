@@ -11,12 +11,13 @@ export class Config {
     public network: { host: string, port: number } = { host: '127.0.0.1', port: 2500 };
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
     public rss: { description: string, url: string } = { description: '', url: 'https://example.com' };
-    public database: { host: string, port: number, username: string, password: string, database: string } = {
+    public database: { host: string, port: number, username: string, password: string, database: string, connectRetries: number } = {
         host: "localhost",
         port: 3306,
         username: "mysql",
         password: "mysql",
-        database: "private_website_db"
+        database: "private_website_db",
+        connectRetries: 30
     }
     public site: {
         friends: {

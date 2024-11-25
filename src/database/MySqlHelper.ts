@@ -17,26 +17,26 @@ export class MySqlHelper implements IDatabase {
     ) { }
 
     // 初始化 MySQL 连接
-    public async init(): Promise<void> {
-        await this.connect();
+    private async connect(): Promise<void> {
+        this.mysqlConnection = await mysql.createConnection({
+            host: this.mysqlHost,
+            port: this.mysqlPort,
+            user: this.mysqlUser,
+            password: this.mysqlPassword,
+            database: this.mysqlDatabase,
+            charset: 'utf8mb4'
+        });
+
+        console.log("MySQL connected");
+        this.mysqlConnection.on('error', this.handleConnectionError.bind(this)); // 监听连接错误
     }
 
     // 尝试连接 MySQL
-    private async connect(): Promise<void> {
+    public async init(): Promise<void> {
         let retries = 0;
         while (retries < this.maxRetries) {
             try {
-                this.mysqlConnection = await mysql.createConnection({
-                    host: this.mysqlHost,
-                    port: this.mysqlPort,
-                    user: this.mysqlUser,
-                    password: this.mysqlPassword,
-                    database: this.mysqlDatabase,
-                    charset: 'utf8mb4'
-                });
-
-                console.log("MySQL connected");
-                this.mysqlConnection.on('error', this.handleConnectionError.bind(this)); // 监听连接错误
+                await this.connect();
                 break;
             } catch (err) {
                 console.error(`MySQL connection failed, retrying... (${retries + 1}/${this.maxRetries})`);
@@ -83,7 +83,7 @@ export class MySqlHelper implements IDatabase {
         }
 
         if (retries >= this.maxRetries) {
-            console.error('Failed to reconnect to MySQL after multiple attempts.');
+            throw new Error('Failed to reconnect to MySQL after multiple attempts.');
         }
     }
 
