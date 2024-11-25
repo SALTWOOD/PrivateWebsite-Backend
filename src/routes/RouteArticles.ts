@@ -69,7 +69,7 @@ export class RouteArticles {
             newArticle.title = article.title;
             newArticle.content = article.content;
             newArticle.description = article.description;
-            newArticle.published = Boolean(article.published);
+            newArticle.published = article.published;
             newArticle.author = user.id;
             newArticle.background = article.background;
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
@@ -88,10 +88,7 @@ export class RouteArticles {
                 res.status(401).json({ error: "Unauthorized" });
                 return;
             }
-            if (user.permission < 1) {
-                res.status(403).json({ error: "Forbidden" });
-                return;
-            }
+
             const article = req.body as {
                 id: number,
                 title: string | undefined,
@@ -107,6 +104,11 @@ export class RouteArticles {
                 res.status(404).json({ error: "Article not found" });
                 return;
             }
+
+            if (user.permission < 1 && oldArticle.author !== user.id) {
+                res.status(403).json({ error: "Forbidden" });
+                return;
+            }
             if (oldArticle.hash !== article.oldHash) {
                 res.status(409).json({ error: "Conflict" });
                 return;
@@ -116,10 +118,8 @@ export class RouteArticles {
             if (article.title !== undefined) newArticle.title = article.title;
             if (article.content !== undefined) newArticle.content = article.content;
             if (article.description !== undefined) newArticle.description = article.description;
-            if (article.published !== undefined) newArticle.published = Boolean(article.published);
+            if (article.published !== undefined) newArticle.published = article.published;
             if (article.background !== undefined) newArticle.background = article.background;
-            newArticle.author = user.id;
-            newArticle.id = article.id;
             newArticle.lastUpdated = Date.now();
 
             inst.db.update(Article, newArticle);
