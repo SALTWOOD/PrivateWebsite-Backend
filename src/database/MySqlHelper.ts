@@ -4,18 +4,27 @@ import { mysqlPrimaryKeyMap, mysqlTableNameMap, mysqlTableSchemaMap, IDatabase, 
 export class MySqlHelper implements IDatabase {
     // @ts-ignore
     private mysqlConnection: mysql.Connection;
+    private reconnecting: boolean = false;
 
     constructor(
         private mysqlHost: string = 'localhost',
         private mysqlPort: number = 3306,
         private mysqlUser: string = 'root',
         private mysqlPassword: string = 'rootpassword',
-        private mysqlDatabase: string = 'private_website_db'
+        private mysqlDatabase: string = 'private_website_db',
+        private maxRetries: number = 5,
+        private retryDelay: number = 1000
     ) { }
 
     // 初始化 MySQL 连接
     public async init(): Promise<void> {
-        for (let i = 0; i < 5; i++) {
+        await this.connect();
+    }
+
+    // 尝试连接 MySQL
+    private async connect(): Promise<void> {
+        let retries = 0;
+        while (retries < this.maxRetries) {
             try {
                 this.mysqlConnection = await mysql.createConnection({
                     host: this.mysqlHost,
@@ -25,13 +34,56 @@ export class MySqlHelper implements IDatabase {
                     database: this.mysqlDatabase,
                     charset: 'utf8mb4'
                 });
+
                 console.log("MySQL connected");
+                this.mysqlConnection.on('error', this.handleConnectionError.bind(this)); // 监听连接错误
                 break;
+            } catch (err) {
+                console.error(`MySQL connection failed, retrying... (${retries + 1}/${this.maxRetries})`);
+                retries++;
+                await new Promise(resolve => setTimeout(resolve, this.retryDelay * Math.pow(2, retries))); // Exponential backoff
             }
-            catch (err) {
-                console.error(`MySQL connection failed, retrying... (${i+1}/5)`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+        }
+
+        if (retries >= this.maxRetries) {
+            throw new Error('Failed to connect to MySQL after multiple attempts');
+        }
+    }
+
+    // 连接错误处理（如连接断开）
+    private async handleConnectionError(error: any): Promise<void> {
+        console.error('MySQL connection error:', error.message);
+
+        if (this.reconnecting) return; // 如果正在重连，则不再进行重复的重连操作
+
+        // 如果是连接丢失错误，进行重连
+        if (error.code === 'PROTOCOL_CONNECTION_LOST' || error.code === 'ECONNREFUSED') {
+            this.reconnecting = true;
+            console.log('Attempting to reconnect to MySQL...');
+            await this.reconnect();
+        } else {
+            throw error; // 如果是其他错误，直接抛出
+        }
+    }
+
+    // 重连逻辑
+    private async reconnect(): Promise<void> {
+        let retries = 0;
+        while (retries < this.maxRetries) {
+            try {
+                await this.connect();
+                this.reconnecting = false;
+                console.log('Reconnected to MySQL successfully.');
+                break;
+            } catch (err) {
+                console.error(`Reconnection failed, retrying... (${retries + 1}/${this.maxRetries})`);
+                retries++;
+                await new Promise(resolve => setTimeout(resolve, this.retryDelay * Math.pow(2, retries))); // Exponential backoff
             }
+        }
+
+        if (retries >= this.maxRetries) {
+            console.error('Failed to reconnect to MySQL after multiple attempts.');
         }
     }
 
