@@ -1,6 +1,8 @@
+import { assert } from "console";
 import { Config } from "../Config.js";
 import { Article } from "../database/Article.js";
 import { RouteFactory } from "./RouteFactory.js";
+import path from "path";
 
 export class RouteRoot {
     public static register(inst: RouteFactory) {
@@ -60,6 +62,10 @@ Sitemap: ${req.protocol}://${Config.instance.network.remoteHost}:${Config.instan
             // 设置响应头并返回 XML 内容
             res.type("application/xml");
             res.send(sitemapXml);
+        });
+
+        inst.app.get("/favicon.ico", async (req, res) => {
+            res.sendFile(path.join("data", "favicon.ico"));
         });
     }
 }
