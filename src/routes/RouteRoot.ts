@@ -28,7 +28,7 @@ Sitemap: ${req.protocol}://${Config.instance.network.remoteHost}:${Config.instan
                 lastmod?: string,
                 changefreq?: string,
                 priority?: number
-            }[] = (await inst.db.getEntities<Article>(Article)).map(a => ({
+            }[] = (await inst.db.getEntities<Article>(Article)).filter(a => a.published).map(a => ({
                 url: `${baseUrl}/main/article/${a.id}`,
                 lastmod: new Date(a.publishedAt).toISOString(),
                 priority: 0.6

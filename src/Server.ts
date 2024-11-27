@@ -65,7 +65,7 @@ export class Server {
         await this.db.createTable<Article>(Article);
         await this.db.createTable<Comment>(Comment);
 
-        this.rss = new RssFeed(async () => await this.db.getEntities<Article>(Article));
+        this.rss = new RssFeed(async () => (await this.db.getEntities<Article>(Article)).filter(a => a.published));
 
         this.setupRoutes();
     }
