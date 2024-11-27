@@ -71,6 +71,8 @@ export class Server {
     }
 
     private setupRoutes(): void {
+        if (Config.instance.network.trust_proxy) this.app.set('trust proxy', 'loopback');
+
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
