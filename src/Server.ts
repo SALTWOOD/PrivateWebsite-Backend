@@ -71,7 +71,7 @@ export class Server {
     }
 
     private setupRoutes(): void {
-        if (Config.instance.network.trust_proxy) this.app.set('trust proxy', 'loopback');
+        if (Config.instance.network.trustProxy) this.app.set('trust proxy', true);
 
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
