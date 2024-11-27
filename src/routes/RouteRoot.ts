@@ -65,7 +65,7 @@ Sitemap: ${req.protocol}://${Config.instance.network.remoteHost}:${Config.instan
         });
 
         inst.app.get("/favicon.ico", async (req, res) => {
-            res.sendFile(path.join("data", "favicon.ico"));
+            res.sendFile(path.resolve("./data/favicon.ico"));
         });
     }
 }
