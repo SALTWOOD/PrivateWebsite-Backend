@@ -8,7 +8,20 @@ export class Config {
     // 定义配置字段
     public site_information: { title: string, bio: string } = { title: '', bio: '' };
     public github: { id: string; secret: string, url: { normal: string, api: string } } = { id: '', secret: '', url: { normal: 'github.com', api: 'api.github.com' } };
-    public network: { host: string, port: number, trustProxy: boolean, remoteHost: string, remotePort: number } = { host: '127.0.0.1', port: 2500, trustProxy: false, remoteHost: '', remotePort: 0 };
+    public network: {
+        host: string,
+        port: number,
+        trustProxy: boolean,
+        remoteHost: string,
+        remotePort: number
+    } = {
+        host: '127.0.0.1',
+        port: 2500,
+        trustProxy: false,
+        remoteHost: '',
+        remotePort: 2500
+    };
+
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
     public rss: { description: string, url: string } = { description: '', url: 'https://example.com' };
     public database: { host: string, port: number, username: string, password: string, database: string, connectRetries: number } = {
