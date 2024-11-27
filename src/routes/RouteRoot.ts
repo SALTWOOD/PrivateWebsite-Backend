@@ -8,11 +8,11 @@ export class RouteRoot {
             res.type("text/plain");
             res.send(`# Privaite-Website
 User-agent: *
-Allow: /main
-Disallow: /api
-Disallow: /main/node_modules
-Disallow: /main/dist
-Disallow: /main/src
+Allow: /main/
+Disallow: /api/
+Disallow: /main/node_modules/
+Disallow: /main/dist/
+Disallow: /main/src/
 
 Sitemap: ${req.protocol}://${Config.instance.network.remoteHost}:${Config.instance.network.remotePort}/sitemap.xml`);
         });
