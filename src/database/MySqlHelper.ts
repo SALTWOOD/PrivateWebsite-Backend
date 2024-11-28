@@ -178,7 +178,7 @@ export class MySqlHelper implements IDatabase {
     // 查询数据（MySQL）
     public async select<T extends object>(type: { new(): T }, columns: string[], whereClause?: string, params?: any[]): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
-        const selectSQL = `SELECT ${columns.join(', ')} FROM ${tableName} ${whereClause ? `WHERE ${whereClause}` : ''}`;
+        const selectSQL = `SELECT ${columns.join(', ')} FROM ${tableName}${whereClause ? ` WHERE ${whereClause}` : ''}`;
         const rows = ((await this.mysqlConnection.query(selectSQL, params))[0] as any[]).map((row: any) => {
             const entity = new type();
             Object.assign(entity, row);
@@ -236,6 +236,13 @@ export class MySqlHelper implements IDatabase {
 
         const updateSQL = `UPDATE ${tableName} SET ${columns} WHERE ${pk} = ?`;
         await this.mysqlConnection.query(updateSQL, values);
+    }
+
+    public async count<T extends object>(type: { new(): T }, whereClause?: string, params?: any[]): Promise<number> {
+        const tableName = this.getTableNameByConstructor(type);
+        const countSQL = `SELECT COUNT(*) FROM ${tableName}${whereClause ? ` WHERE ${whereClause}` : ''}`;
+        const [rows] = await this.mysqlConnection.query(countSQL, params);
+        return (rows as any[])[0]['COUNT(*)'] || 0;
     }
 
     // 删除数据（MySQL）

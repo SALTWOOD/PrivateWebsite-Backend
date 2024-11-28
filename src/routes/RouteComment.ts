@@ -37,8 +37,8 @@ export class RouteComment {
                 return;
             }
 
-            if ((await inst.db.run(`SELECT COUNT(*) FROM comments WHERE user = ${user.id}`))[0]['COUNT(*)'] > 5000
-                || (await inst.db.run("SELECT COUNT(*) FROM comments"))[0]['COUNT(*)'] > 75000) {
+            if ((await inst.db.count<Comment>(Comment, "user = ?", [user.id])) > 5000
+                || (await inst.db.count<Comment>(Comment)) > 75000) {
                 res.status(403).json({ error: 'Forbidden' });
                 return;
             }
@@ -95,7 +95,7 @@ export class RouteComment {
 
             const id = Number(req.params.id) || 0;
             const commentId = Number(req.params.comment) || 0;
-            const comments = await inst.db.select<Comment>(Comment, ['*'], `id = ${commentId} AND article = ${id}`);
+            const comments = await inst.db.select<Comment>(Comment, ['*'], "id = ? AND article = ?", [commentId, id]);
 
             if (comments.length === 0) {
                 res.status(404).json({ error: 'Comment not found' });
@@ -132,7 +132,7 @@ export class RouteComment {
 
             const id = Number(req.params.commentId) || 0;
             const articleId = Number(req.params.id) || 0;
-            const comments = await inst.db.select<Comment>(Comment, ['*'], `id = ${id} AND article = ${articleId}`);
+            const comments = await inst.db.select<Comment>(Comment, ['*'], "id = ${id} AND article = ?", [id, articleId]);
 
             if (comments.length === 0) {
                 res.status(404).json({ error: 'Comment not found' });
