@@ -78,7 +78,7 @@ export class RouteUpload {
 
                 if (!uploadSessions[sessionId]
                     || uploadSessions[sessionId].finalName !== finalName
-                    || uploadSessions[sessionId].totalChunks !== totalChunks
+                    || uploadSessions[sessionId].totalChunks !== Number(totalChunks)
                 ) {
                     res.status(400).json({ error: 'Invalid session' });
                     return;
