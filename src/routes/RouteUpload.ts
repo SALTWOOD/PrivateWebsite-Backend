@@ -73,11 +73,11 @@ export class RouteUpload {
         // 上传分片
         inst.app.post('/api/upload/session', upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
             try {
-                const { sessionId, chunk, totalChunks, finalName } = req.body;
+                const { sessionId, chunk, totalChunks, filename } = req.body;
                 const chunkIndex = parseInt(chunk);
 
                 if (!uploadSessions[sessionId]
-                    || uploadSessions[sessionId].finalName !== finalName
+                    || uploadSessions[sessionId].filename !== filename
                     || uploadSessions[sessionId].totalChunks !== Number(totalChunks)
                 ) {
                     res.status(400).json({ error: 'Invalid session' });
