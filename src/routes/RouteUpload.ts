@@ -34,25 +34,17 @@ export class RouteUpload {
         });
 
         // 存储上传会话信息
-        const uploadSessions: { [sessionId: string]: { filename: string, totalChunks: number, uploadedChunks: Set<number>, timeout: NodeJS.Timeout } } = {};
+        const uploadSessions: { [sessionId: string]: { filename: string, totalChunks: number, uploadedChunks: Set<number>, timeout: NodeJS.Timeout, finalName: string } } = {};
 
         // 启动上传会话
         inst.app.post('/api/upload/new', async (req: Request, res: Response) => {
             const { filename, fileSize } = req.body;
             const sessionId = uuidv4();
+            const finalName = `${Date.now()}-${filename}`;
 
             if (fileSize > 50 * 1024 * 1024) {
                 res.status(400).json({ error: 'File size exceeds limit' });
-            }
-
-            // 删除可能存在的同名文件的未完成分片
-            const files = fs.readdirSync('./assets/uploads');
-            for (const [id, session] of Object.entries(uploadSessions).filter(([id, s]) => s.filename === filename)) {
-                clearTimeout(session.timeout);  // 清理超时计时器
-                delete uploadSessions[id];  // 清理会话
-            }
-            for (const file of files.filter(f => f.startsWith(`${filename}.part`))) {
-                fs.unlinkSync(path.join('.', 'assets/uploads', file));  // 删除临时分片
+                return;
             }
 
             const chunkSize = 16 * 1024; // 每片大小最大16KB
@@ -61,7 +53,7 @@ export class RouteUpload {
             const sessionTimeout = setTimeout(() => {
                 console.log(`Session ${sessionId} timed out, and it was removed`);
                 for (const i of uploadSessions[sessionId].uploadedChunks) {
-                    const chunkPath = path.join('.', 'assets/uploads', `${filename}.part${i}`);
+                    const chunkPath = path.join('.', 'assets/uploads', `${finalName}.part${i}`);
                     fs.unlinkSync(chunkPath);  // 删除临时分片
                 }
                 delete uploadSessions[sessionId]; // 超时清理
@@ -71,19 +63,23 @@ export class RouteUpload {
                 filename,
                 totalChunks,
                 uploadedChunks: new Set(),
-                timeout: sessionTimeout
+                timeout: sessionTimeout,
+                finalName
             };
 
-            res.json({ sessionId, totalChunks, size: fileSize, filename });
+            res.json({ sessionId, totalChunks, size: fileSize, filename, finalName });
         });
 
         // 上传分片
         inst.app.post('/api/upload/session', upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
             try {
-                const { sessionId, chunk, totalChunks, filename } = req.body;
+                const { sessionId, chunk, totalChunks, finalName } = req.body;
                 const chunkIndex = parseInt(chunk);
 
-                if (!uploadSessions[sessionId]) {
+                if (!uploadSessions[sessionId]
+                    || uploadSessions[sessionId].finalName !== finalName
+                    || uploadSessions[sessionId].totalChunks !== totalChunks
+                ) {
                     res.status(400).json({ error: 'Invalid session' });
                     return;
                 }
@@ -97,7 +93,7 @@ export class RouteUpload {
                 }
 
                 // 保存分片
-                const chunkFilePath = path.join('.', 'assets/uploads', `${filename}.part${chunkIndex}`);
+                const chunkFilePath = path.join('.', 'assets/uploads', `${finalName}.part${chunkIndex}`);
                 if (!req.file?.buffer) {
                     res.status(400).json({ error: 'Invalid file' });
                     return;
@@ -108,10 +104,10 @@ export class RouteUpload {
 
                 // 如果所有分片上传完成，则合并分片
                 if (session.uploadedChunks.size >= session.totalChunks) {
-                    await mergeChunks(session, filename);
+                    await mergeChunks(session, finalName);
                     delete uploadSessions[sessionId]; // 清理会话
                     clearTimeout(session.timeout);  // 清理超时计时器
-                    res.status(200).json({ message: 'File uploaded successfully and merged' });
+                    res.status(200).json({ message: 'File uploaded successfully and merged', finalName });
                 } else {
                     res.status(200).json({ message: 'Chunk uploaded successfully' });
                 }
