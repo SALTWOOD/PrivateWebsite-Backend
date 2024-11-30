@@ -83,7 +83,8 @@ export class RouteUpload {
                     res.status(400).json({ error: 'Invalid session' });
                     return;
                 }
-
+                
+                const finalName = uploadSessions[sessionId].finalName;
                 const session = uploadSessions[sessionId];
 
                 // 检查是否已上传该分片
