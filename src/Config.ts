@@ -93,6 +93,7 @@ export class Config {
         if (!Config._instance) {
             Config._instance = new Config();
             Config._fsWatcher = fs.watch('./data/config.json', () => {
+                console.log('[Config] Config file changed. Reloading...');
                 Config._instance.loadConfig();
             });  // 监听配置文件变化并重新加载
         }
