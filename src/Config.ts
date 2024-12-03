@@ -2,6 +2,7 @@ import fs from 'fs';
 
 export class Config {
     private static _instance: Config;
+    private static _fsWatcher: fs.FSWatcher;
 
     public static version = "1.0.0";
 
@@ -15,12 +16,12 @@ export class Config {
         remoteHost: string,
         remotePort: number
     } = {
-        host: '127.0.0.1',
-        port: 2500,
-        trustProxy: false,
-        remoteHost: '',
-        remotePort: 2500
-    };
+            host: '127.0.0.1',
+            port: 2500,
+            trustProxy: false,
+            remoteHost: '',
+            remotePort: 2500
+        };
 
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
     public rss: { description: string, url: string } = { description: '', url: 'https://example.com' };
@@ -42,6 +43,10 @@ export class Config {
     } = { friends: [] };
 
     private constructor() {
+        this.loadConfig();
+    }
+
+    private loadConfig(): void {
         // 读取并解析 json 文件
         const data = fs.readFileSync('./data/config.json', 'utf-8');
         const configData = JSON.parse(data);
@@ -87,11 +92,18 @@ export class Config {
     public static getInstance(): Config {
         if (!Config._instance) {
             Config._instance = new Config();
+            Config._fsWatcher = fs.watch('./data/config.json', () => {
+                Config._instance.loadConfig();
+            });  // 监听配置文件变化并重新加载
         }
         return Config._instance;
     }
 
     public static get instance(): Config {
         return Config.getInstance();
+    }
+
+    public static get fsWatcher(): fs.FSWatcher {
+        return Config._fsWatcher;
     }
 }
