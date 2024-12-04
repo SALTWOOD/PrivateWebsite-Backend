@@ -6,6 +6,10 @@ import path from "path";
 
 export class RouteRoot {
     public static register(inst: RouteFactory) {
+        inst.app.get("/", async (req, res) => {
+            res.redirect(301, "/main");
+        });
+
         inst.app.get("/robots.txt", async (req, res) => {
             res.type("text/plain");
             res.send(`# Privaite-Website
