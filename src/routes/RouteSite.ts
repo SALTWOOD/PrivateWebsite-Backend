@@ -10,5 +10,14 @@ export class RouteSite {
         inst.app.get("/api/site/friends", async (req, res) => {
             res.json(Config.instance.site.friends);
         });
+
+        inst.app.get("/api/site/random_background", async (req, res) => {
+            const backgrounds = Config.instance.site.backgrounds;
+            const random = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+            // 随机抽一个元素
+            res.json({
+                url: random
+            });
+        });
     }
 }

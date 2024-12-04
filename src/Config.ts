@@ -39,8 +39,9 @@ export class Config {
             url: string,
             avatar: string,
             description: string
-        }[]
-    } = { friends: [] };
+        }[],
+        backgrounds: string[]
+    } = { friends: [], backgrounds: [] };
 
     private constructor() {
         this.loadConfig();
