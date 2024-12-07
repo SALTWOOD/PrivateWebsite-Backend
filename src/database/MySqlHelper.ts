@@ -278,4 +278,14 @@ export class MySqlHelper implements IDatabase {
     public async run(sql: string, params?: any[]): Promise<any> {
         return (await this.mysqlConnection.query(sql, params))[0];
     }
+
+    public async query<T extends object>(type: { new (): T; }, sql: string, params?: any[]): Promise<T[]> {
+        const tableName = this.getTableNameByConstructor(type);
+        const [rows] = await this.mysqlConnection.query(sql, params);
+        return (rows as T[]).map((row: T) => {
+            const entity = new type();
+            Object.assign(entity, row);
+            return entity;
+        });
+    }
 }

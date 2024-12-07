@@ -14,10 +14,12 @@ export class UserEntity {
     public username: string;
     public photo: string;
     public permission: number = 0;
+    public lastRead: number = 0;
 
     constructor(id: number = 0, username: string = '', photo: string = '') {
         this.id = id;
         this.username = username;
         this.photo = photo;
+        this.lastRead = 0;
     }
 }

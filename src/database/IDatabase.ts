@@ -48,5 +48,6 @@ export interface IDatabase {
     remove<T extends object>(type: { new (): T }, obj: T): Promise<void>;
     close(): Promise<void>;
     count<T extends object>(type: { new (): T }, whereClause?: string, params?: any[]): Promise<number>;
+    query<T extends object>(type: { new (): T }, sql: string, params?: any[]): Promise<T[]>;
     run(sql: string, params?: any[]): Promise<any>;
 }
