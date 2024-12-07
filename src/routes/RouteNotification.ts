@@ -11,7 +11,7 @@ export class RouteNotification {
         SELECT 1
         FROM comments parent
         WHERE parent.id = comment.parent
-        AND parent.user_id = ?
+        AND parent.user = ?
     )
     AND comment.createdAt > ?`;
 
