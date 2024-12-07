@@ -26,7 +26,7 @@ export class RouteComment {
                 page: page,
                 total: comments.length,
                 current: [page * 10, (page + 1) * 10],
-                comments: comments.slice(page * 10, (page + 1) * 10)
+                data: comments.slice(page * 10, (page + 1) * 10)
             });
         });
 
