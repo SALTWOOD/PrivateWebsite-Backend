@@ -36,6 +36,7 @@ export class RouteNotification {
     public static register(inst: RouteFactory) {
         inst.app.get("/api/notifications", async (req, res) => {
             const all = String(req.query.all || "false").toLowerCase() === "true";
+            const page = Number(req.query.page) || 0;
             const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).send("Unauthorized");
@@ -44,7 +45,12 @@ export class RouteNotification {
 
             const notifications = await inst.db.select<Comment>(Comment, ["*"], this.getSql(all), this.getParams(user, all), this.VARIABLE);
 
-            res.json(notifications);
+            res.json({
+                page: page,
+                total: notifications.length,
+                current: [page * 10, (page + 1) * 10],
+                data: notifications.slice(page * 10, (page + 1) * 10)
+            });
         });
 
         inst.app.get("/api/notifications/count", async (req, res) => {
