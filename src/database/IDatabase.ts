@@ -41,13 +41,13 @@ export { Table, Ignore, AutoIncrement, PrimaryKey };
 export interface IDatabase {
     createTable<T extends object>(type: { new (): T }): Promise<void>;
     insert<T extends object>(type: { new (): T }, obj: T): Promise<number>;
-    select<T extends object>(type: { new (): T }, columns: string[], whereClause?: string, params?: any[]): Promise<T[]>;
+    select<T extends object>(type: { new (): T }, columns: string[], whereClause?: string, params?: any[], variable?: string): Promise<T[]>;
     getEntity<T extends object>(type: { new (): T }, primaryKey: number | string): Promise<T | null>;
     getEntities<T extends object>(type: { new (): T }): Promise<T[]>;
     update<T extends object>(type: { new (): T }, obj: T): Promise<void>;
     remove<T extends object>(type: { new (): T }, obj: T): Promise<void>;
     close(): Promise<void>;
-    count<T extends object>(type: { new (): T }, whereClause?: string, params?: any[]): Promise<number>;
+    count<T extends object>(type: { new (): T }, whereClause?: string, params?: any[], variable?: string): Promise<number>;
     query<T extends object>(type: { new (): T }, sql: string, params?: any[]): Promise<T[]>;
     run(sql: string, params?: any[]): Promise<any>;
 }
