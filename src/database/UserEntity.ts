@@ -7,6 +7,7 @@ import { PrimaryKey, Table } from './IDatabase.js';
     photo VARCHAR(128),
     permission INT DEFAULT 0,
     PRIMARY KEY (id)
+    lastRead DATETIME DEFAULT CURRENT_TIMESTAMP
 `)
 @PrimaryKey('id')
 export class UserEntity {
@@ -14,12 +15,12 @@ export class UserEntity {
     public username: string;
     public photo: string;
     public permission: number = 0;
-    public lastRead: number = 0;
+    public lastRead: Date = new Date();
 
     constructor(id: number = 0, username: string = '', photo: string = '') {
         this.id = id;
         this.username = username;
         this.photo = photo;
-        this.lastRead = 0;
+        this.lastRead = new Date();
     }
 }

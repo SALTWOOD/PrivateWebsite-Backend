@@ -49,7 +49,10 @@ export class RouteNotification {
                 page: page,
                 total: notifications.length,
                 current: [page * 10, (page + 1) * 10],
-                data: notifications.slice(page * 10, (page + 1) * 10)
+                data: notifications.slice(page * 10, (page + 1) * 10).map(n => ({
+                    ...n,
+                    read: n.createdAt <= user.lastRead
+                }))
             });
         });
 
@@ -64,14 +67,14 @@ export class RouteNotification {
             res.json({ count });
         });
 
-        inst.app.post("/api/notifications/mark_read", async (req, res) => {
+        inst.app.post("/api/notifications/mark_as_read", async (req, res) => {
             const user = await Utilities.getUser(req, inst.db);
             if (!user) {
                 res.status(401).send("Unauthorized");
                 return;
             }
             
-            user.lastRead = Date.now();
+            user.lastRead = new Date();
             await inst.db.update<UserEntity>(UserEntity, user);
 
             res.json({ success: true });
