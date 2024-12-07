@@ -32,7 +32,7 @@ export class RouteNotification {
                 return;
             }
 
-            const notifications = await inst.db.select<Comment>(Comment, ["*"], this.SQL_WHERE_CLAUSE, [user.id, user.lastRead], this.VARIABLE);
+            const notifications = await inst.db.select<Comment>(Comment, ["*"], this.SQL_WHERE_CLAUSE, [user.id, user.lastRead, user.id], this.VARIABLE);
 
             res.json(notifications);
         });
@@ -44,7 +44,7 @@ export class RouteNotification {
                 return;
             }
 
-            const count = await inst.db.count<Comment>(Comment, this.SQL_WHERE_CLAUSE, [user.id, user.lastRead], this.VARIABLE);
+            const count = await inst.db.count<Comment>(Comment, this.SQL_WHERE_CLAUSE, [user.id, user.lastRead, user.id], this.VARIABLE);
             res.json({ count });
         });
 
