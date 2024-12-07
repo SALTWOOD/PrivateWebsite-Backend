@@ -7,20 +7,22 @@ import { RouteFactory } from "./RouteFactory.js";
 export class RouteNotification {
     public static VARIABLE: string = "comment";
     public static SQL_WHERE_CLAUSE = `
-    (
-        EXISTS (
-            SELECT 1
-            FROM comments parent
-            WHERE parent.id = comment.parent
-            AND parent.user = ?
-        )
-        AND comment.createdAt > ?
-    ) OR (
-        EXISTS (
-            SELECT 1
-            FROM articles article
-            WHERE article.id = comment.article
-            AND article.author = ?
+    comment.user != ? AND (
+        (
+            EXISTS (
+                SELECT 1
+                FROM comments parent
+                WHERE parent.id = comment.parent
+                AND parent.user = ?
+            )
+            AND comment.createdAt > ?
+        ) OR (
+            EXISTS (
+                SELECT 1
+                FROM articles article
+                WHERE article.id = comment.article
+                AND article.author = ?
+            )
         )
     )`;
 
