@@ -10,7 +10,7 @@ export class RouteNotification {
     EXISTS (
         SELECT 1
         FROM comments parent
-        WHERE parent.id = comment.parent_id
+        WHERE parent.id = comment.parent
         AND parent.user_id = ?
     )
     AND comment.createdAt > ?`;
