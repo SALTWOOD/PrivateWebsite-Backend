@@ -26,6 +26,10 @@ export class RouteNotification {
         )
     )`;
 
+    public static getParams(user: UserEntity) {
+        return [user.id, user.id, user.lastRead, user.id];
+    }
+
     public static register(inst: RouteFactory) {
         inst.app.get("/api/notifications", async (req, res) => {
             const user = await Utilities.getUser(req, inst.db);
@@ -34,7 +38,7 @@ export class RouteNotification {
                 return;
             }
 
-            const notifications = await inst.db.select<Comment>(Comment, ["*"], this.SQL_WHERE_CLAUSE, [user.id, user.lastRead, user.id], this.VARIABLE);
+            const notifications = await inst.db.select<Comment>(Comment, ["*"], this.SQL_WHERE_CLAUSE, this.getParams(user), this.VARIABLE);
 
             res.json(notifications);
         });
@@ -46,7 +50,7 @@ export class RouteNotification {
                 return;
             }
 
-            const count = await inst.db.count<Comment>(Comment, this.SQL_WHERE_CLAUSE, [user.id, user.lastRead, user.id], this.VARIABLE);
+            const count = await inst.db.count<Comment>(Comment, this.SQL_WHERE_CLAUSE, this.getParams(user), this.VARIABLE);
             res.json({ count });
         });
 
