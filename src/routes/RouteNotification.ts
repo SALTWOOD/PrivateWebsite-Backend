@@ -20,7 +20,7 @@ export class RouteNotification {
             SELECT 1
             FROM articles article
             WHERE article.id = comment.article
-            AND article.user = ?
+            AND article.author = ?
         )
     )`;
 
