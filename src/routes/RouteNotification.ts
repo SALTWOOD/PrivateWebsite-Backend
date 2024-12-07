@@ -25,7 +25,7 @@ export class RouteNotification {
                 )
             )
         )
-        ${getAll? "" : "AND comment.created > ?"}`;
+        ${getAll? "" : "AND comment.createdAt > ?"}`;
     }
 
     public static getParams(user: UserEntity, getAll: boolean = false) {
