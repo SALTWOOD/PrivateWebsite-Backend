@@ -60,7 +60,7 @@ export class RouteAuth {
                     clientId: Config.instance.github.id
                 }, "user", 60 * 60 * 24 * Config.instance.user.tokenExpiration);
         
-                res.cookie('token', token, {
+                res.cookie('pw-token', token, {
                     expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
                     secure: true,
                     sameSite: 'lax',
