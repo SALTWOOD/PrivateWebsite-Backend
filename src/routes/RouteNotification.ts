@@ -45,14 +45,17 @@ export class RouteNotification {
 
             const notifications = await inst.db.select<Comment>(Comment, ["*"], this.getSql(all), this.getParams(user, all), this.VARIABLE);
 
+            const data = await Promise.all(notifications.slice(page * 10, (page + 1) * 10).map(async n => ({
+                ...n.getJson(true),
+                user: await inst.db.getEntity<UserEntity>(UserEntity, n.user),
+                read: n.createdAt <= user.lastRead
+            })));
+
             res.json({
                 page: page,
                 total: notifications.length,
                 current: [page * 10, (page + 1) * 10],
-                data: notifications.slice(page * 10, (page + 1) * 10).map(n => ({
-                    ...n,
-                    read: n.createdAt <= user.lastRead
-                }))
+                data
             });
         });
 
