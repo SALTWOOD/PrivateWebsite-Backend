@@ -6,8 +6,8 @@ import { PrimaryKey, Table } from './IDatabase.js';
     username VARCHAR(32) NOT NULL,
     photo VARCHAR(128),
     permission INT DEFAULT 0,
+    lastRead DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
-    lastRead DATETIME DEFAULT CURRENT_TIMESTAMP
 `)
 @PrimaryKey('id')
 export class UserEntity {
