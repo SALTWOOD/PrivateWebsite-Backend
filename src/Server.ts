@@ -84,6 +84,8 @@ export class Server {
     }
 
     public start(): void {  
-        this.app.listen(Config.instance.network.port, Config.instance.network.host);
+        this.app.listen(Config.instance.network.port, Config.instance.network.host, () => {
+            console.log(`Server started on http://${Config.instance.network.host}:${Config.instance.network.port}`);
+        });
     }
 }
