@@ -4,6 +4,7 @@ import { mkdirSync } from "fs";
 const requiredFolders = [
     "assets",
     "assets/uploads",
+    "assets/backgrounds",
     "data"
 ];
 

@@ -43,6 +43,8 @@ export class Config {
         backgrounds: string[]
     } = { friends: [], backgrounds: [] };
 
+    public backgrounds: string[] = [];
+
     private constructor() {
         this.loadConfig();
     }
@@ -58,6 +60,12 @@ export class Config {
                 this.validateAndAssign(key as keyof Config, configData[key]);
             }
         });
+
+        // 加载背景图片
+        const files = fs.readdirSync('./assets/backgrounds');
+        // 根据文件名组合成 https(或http，从req获取)://{network.host}:{network.port}/assets/backgrounds/{filename} 的 URL
+        this.backgrounds = files.map(file => `/assets/backgrounds/${file}`);
+        this.backgrounds = [ ...this.backgrounds, ...this.site.backgrounds ];
     }
 
     private validateAndAssign(field: keyof Config, value: any): void {
