@@ -1,6 +1,8 @@
+import json5 from 'json5';
 import fs from 'fs';
 
 export class Config {
+    public static FILENAME = './data/config.json5';
     private static _instance: Config;
     private static _fsWatcher: fs.FSWatcher;
 
@@ -51,15 +53,18 @@ export class Config {
 
     private loadConfig(): void {
         // 读取并解析 json 文件
-        const data = fs.readFileSync('./data/config.json', 'utf-8');
-        const configData = JSON.parse(data);
-
-        // 自动映射配置数据到实例字段
-        Object.keys(configData).forEach((key) => {
-            if (key in this) {
-                this.validateAndAssign(key as keyof Config, configData[key]);
-            }
-        });
+        if (!fs.existsSync(Config.FILENAME)) {
+            const data = fs.readFileSync(Config.FILENAME, 'utf-8');
+            const configData = json5.parse(data);
+    
+            // 自动映射配置数据到实例字段
+            Object.keys(configData).forEach((key) => {
+                if (key in this) {
+                    this.validateAndAssign(key as keyof Config, configData[key]);
+                }
+            });
+        }
+        //否则就是用默认的配置
 
         // 加载背景图片
         const files = fs.readdirSync('./assets/backgrounds');
@@ -101,7 +106,7 @@ export class Config {
     public static getInstance(): Config {
         if (!Config._instance) {
             Config._instance = new Config();
-            Config._fsWatcher = fs.watch('./data/config.json', () => {
+            Config._fsWatcher = fs.watch(Config.FILENAME, () => {
                 console.log('[Config] Config file changed. Reloading...');
                 Config._instance.loadConfig();
             });  // 监听配置文件变化并重新加载
