@@ -28,7 +28,7 @@ export class Config {
     public user: { tokenExpiration: number } = { tokenExpiration: 30 };
     public rss: { description: string, url: string } = { description: '', url: 'https://example.com' };
     public database: { host: string, port: number, username: string, password: string, database: string, connectRetries: number } = {
-        host: "localhost",
+        host: "mysql",
         port: 3306,
         username: "mysql",
         password: "mysql",
