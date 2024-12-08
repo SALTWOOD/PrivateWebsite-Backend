@@ -47,7 +47,7 @@ const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next
             const newToken = JwtHelper.instance.issueToken({
                 userId: tokenPayload.userId,
                 clientId: tokenPayload.clientId
-            }, Constants.TOKEN_USER_AUDIENCE, Utilities.getDate(Config.instance.user.tokenExpiration, "day").getTime() / 1000);
+            }, Constants.TOKEN_USER_AUDIENCE, Constants.SECONDS_IN_DAY * Config.instance.user.tokenExpiration);
             res.cookie(Constants.TOKEN_NAME, newToken, {
                 expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
                 secure: true
