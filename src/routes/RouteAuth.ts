@@ -1,4 +1,5 @@
 import { Config } from "../Config.js";
+import { Constants } from "../Constants.js";
 import { GitHubUser } from "../database/GitHubUser.js";
 import { UserEntity } from "../database/UserEntity.js";
 import JwtHelper from "../JwtHelper.js";
@@ -58,7 +59,7 @@ export class RouteAuth {
                 const token = JwtHelper.instance.issueToken({
                     userId: githubUser.id,
                     clientId: Config.instance.github.id
-                }, "user", Utilities.getDate(Config.instance.user.tokenExpiration, "day").getTime() / 1000);
+                }, Constants.TOKEN_USER_AUDIENCE, Utilities.getDate(Config.instance.user.tokenExpiration, "day").getTime() / 1000);
         
                 res.cookie('pw-token', token, {
                     expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),

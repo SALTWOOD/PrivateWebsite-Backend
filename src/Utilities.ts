@@ -69,7 +69,7 @@ export class Utilities {
     public static async getUser(req: Request, db: IDatabase): Promise<UserEntity | null> {
         try {
             const token = req.cookies[Constants.TOKEN_NAME];
-            const data = JwtHelper.instance.verifyToken(token, "user") as { userId: number };
+            const data = JwtHelper.instance.verifyToken(token, Constants.TOKEN_USER_AUDIENCE) as { userId: number };
             const id = data.userId;
             const user = await db.getEntity(UserEntity, id);
             if (user) {

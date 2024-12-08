@@ -7,7 +7,7 @@ import { Request, Response } from "express";
 export class RouteUser {
     public static register(inst: RouteFactory) {
         inst.app.get("/api/user", async (req: Request, res: Response) => {
-            const obj = JwtHelper.instance.verifyToken(req.cookies[Constants.TOKEN_NAME], "user");
+            const obj = JwtHelper.instance.verifyToken(req.cookies[Constants.TOKEN_NAME], Constants.TOKEN_USER_AUDIENCE);
             if (!obj) {
                 res.status(401).json({ message: "Unauthorized" });
                 return;
