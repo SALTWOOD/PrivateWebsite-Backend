@@ -12,7 +12,7 @@ services:
     networks:
       - internal_network
     ports:
-      - "2500:2500"
+      - "127.0.0.1:2500:2500"
     restart: unless-stopped
     logging:
       driver: 'json-file'
