@@ -50,7 +50,8 @@ const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next
             }, Constants.TOKEN_USER_AUDIENCE, Constants.SECONDS_IN_DAY * Config.instance.user.tokenExpiration);
             res.cookie(Constants.TOKEN_NAME, newToken, {
                 expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
-                secure: true
+                secure: true,
+                sameSite: 'lax'
             });
         };
         next();
@@ -98,10 +99,13 @@ export class Server {
     private setupRoutes(): void {
         if (Config.instance.network.trustProxy) this.app.set('trust proxy', true);
 
-        this.app.use(renewTokenMiddleware(this.db));
+        // 基础中间件
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
+
+        // 扩展中间件
+        this.app.use(renewTokenMiddleware(this.db));
         this.app.use(logMiddleware);
 
         this.app.use('/assets', express.static(path.resolve('./assets')));
