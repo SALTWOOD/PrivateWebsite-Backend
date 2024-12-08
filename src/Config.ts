@@ -53,7 +53,7 @@ export class Config {
 
     private loadConfig(): void {
         // 读取并解析 json 文件
-        if (!fs.existsSync(Config.FILENAME)) {
+        if (fs.existsSync(Config.FILENAME)) {
             const data = fs.readFileSync(Config.FILENAME, 'utf-8');
             const configData = json5.parse(data);
     
