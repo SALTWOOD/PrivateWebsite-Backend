@@ -1,6 +1,6 @@
 services:
   private-website:
-    image: saltwood233/private-website
+    image: saltwood233/private-website:dev
     volumes:
       - ./data:/app/data
       - ./assets:/app/assets
