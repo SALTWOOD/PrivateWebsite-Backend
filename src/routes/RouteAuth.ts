@@ -58,7 +58,7 @@ export class RouteAuth {
                 const token = JwtHelper.instance.issueToken({
                     userId: githubUser.id,
                     clientId: Config.instance.github.id
-                }, "user", 60 * 60 * 24 * Config.instance.user.tokenExpiration);
+                }, "user", Utilities.getDate(Config.instance.user.tokenExpiration, "day").getTime() / 1000);
         
                 res.cookie('pw-token', token, {
                     expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),

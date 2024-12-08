@@ -11,6 +11,9 @@ import { MySqlHelper } from './database/MySqlHelper.js';
 import { RssFeed } from './RssFeed.js';
 import { Request, Response, NextFunction } from 'express';
 import { Comment } from './database/Comment.js';
+import JwtHelper from './JwtHelper.js';
+import { Constants, IUserJwt } from './Constants.js';
+import { Utilities } from './Utilities.js';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -31,6 +34,28 @@ const logAccess = (req: Request, res: Response) => {
     const ip = req.ip;
     console.log(`${req.method} ${req.originalUrl} ${req.protocol} <${res.statusCode}> - [${ip}] ${userAgent}`);
 };
+
+const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next: NextFunction) => Promise<void> => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        // 只有在有 token 且剩余时间小于 7 天的情况下才会进行续期，否则忽略并且继续执行下一个中间件
+        const token = req.cookies[Constants.TOKEN_NAME];
+        if (!token) return next();
+
+        const tokenPayload = JwtHelper.instance.verifyToken(token) as IUserJwt | null;
+        if (!tokenPayload) return next();
+        if (new Date(tokenPayload.exp) < Utilities.getDate(7, "day")) {
+            const newToken = JwtHelper.instance.issueToken({
+                userId: tokenPayload.userId,
+                clientId: tokenPayload.clientId
+            }, "user", Utilities.getDate(Config.instance.user.tokenExpiration, "day").getTime());
+            res.cookie(Constants.TOKEN_NAME, newToken, {
+                expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
+                secure: true
+            });
+        };
+        next();
+    };
+}
 
 export class Server {
     private app: Express;
@@ -73,6 +98,7 @@ export class Server {
     private setupRoutes(): void {
         if (Config.instance.network.trustProxy) this.app.set('trust proxy', true);
 
+        this.app.use(renewTokenMiddleware(this.db));
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
@@ -83,7 +109,7 @@ export class Server {
         factory.factory();
     }
 
-    public start(): void {  
+    public start(): void {
         this.app.listen(Config.instance.network.port, Config.instance.network.host, () => {
             console.log(`Server started on http://${Config.instance.network.host}:${Config.instance.network.port}`);
         });

@@ -1,3 +1,4 @@
+import { Constants } from "../Constants.js";
 import { UserEntity } from "../database/UserEntity.js";
 import JwtHelper from "../JwtHelper.js";
 import { RouteFactory } from "./RouteFactory.js";
@@ -6,7 +7,7 @@ import { Request, Response } from "express";
 export class RouteUser {
     public static register(inst: RouteFactory) {
         inst.app.get("/api/user", async (req: Request, res: Response) => {
-            const obj = JwtHelper.instance.verifyToken(req.cookies["pw-token"], "user");
+            const obj = JwtHelper.instance.verifyToken(req.cookies[Constants.TOKEN_NAME], "user");
             if (!obj) {
                 res.status(401).json({ message: "Unauthorized" });
                 return;

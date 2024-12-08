@@ -4,6 +4,7 @@ import JwtHelper from "./JwtHelper.js";
 import { IDatabase } from "./database/IDatabase.js";
 import { Article } from "./database/Article.js";
 import { Comment } from "./database/Comment.js";
+import { Constants } from "./Constants.js";
 
 export class Utilities {
     public static MAX_DEPTH = 4;
@@ -67,7 +68,7 @@ export class Utilities {
 
     public static async getUser(req: Request, db: IDatabase): Promise<UserEntity | null> {
         try {
-            const token = req.cookies["pw-token"];
+            const token = req.cookies[Constants.TOKEN_NAME];
             const data = JwtHelper.instance.verifyToken(token, "user") as { userId: number };
             const id = data.userId;
             const user = await db.getEntity(UserEntity, id);
