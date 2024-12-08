@@ -11,6 +11,8 @@ services:
       - TZ=Asia/Shanghai
     networks:
       - internal_network
+    ports:
+      - "2500:2500"
     restart: unless-stopped
     logging:
       driver: 'json-file'
