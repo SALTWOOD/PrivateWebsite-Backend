@@ -9,7 +9,8 @@ services:
     environment:
       - IS_IN_DOCKER=true
       - TZ=Asia/Shanghai
-    network_mode: host
+    networks:
+      - internal_network
     restart: unless-stopped
     logging:
       driver: 'json-file'
