@@ -39,6 +39,7 @@ export class MySqlHelper implements IDatabase {
                 await this.connect();
                 break;
             } catch (err) {
+                console.log(err);
                 console.error(`MySQL connection failed, retrying... (${retries + 1}/${this.maxRetries})`);
                 retries++;
                 await new Promise(resolve => setTimeout(resolve, this.retryDelay * Math.pow(2, retries))); // Exponential backoff
