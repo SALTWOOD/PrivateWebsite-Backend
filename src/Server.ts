@@ -43,16 +43,12 @@ const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next
 
         const tokenPayload = JwtHelper.instance.verifyToken(token) as IUserJwt | null;
         if (!tokenPayload) return next();
-        if (new Date(tokenPayload.exp) < Utilities.getDate(7, "day")) {
+        if (new Date(tokenPayload.exp) < Utilities.getDate(7, "day") && tokenPayload.clientId === Config.instance.github.id && Number(tokenPayload.userId)) {
             const newToken = JwtHelper.instance.issueToken({
-                userId: tokenPayload.userId,
+                userId: Number(tokenPayload.userId),
                 clientId: tokenPayload.clientId
             }, Constants.TOKEN_USER_AUDIENCE, Constants.SECONDS_IN_DAY * Config.instance.user.tokenExpiration);
-            res.cookie(Constants.TOKEN_NAME, newToken, {
-                expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
-                secure: true,
-                sameSite: 'lax'
-            });
+            res.cookie(Constants.TOKEN_NAME, newToken, Constants.GetBrowserCookieOptions());
         };
         next();
     };

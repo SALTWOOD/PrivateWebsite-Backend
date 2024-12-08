@@ -61,11 +61,7 @@ export class RouteAuth {
                     clientId: Config.instance.github.id
                 }, Constants.TOKEN_USER_AUDIENCE, Constants.SECONDS_IN_DAY * Config.instance.user.tokenExpiration);
         
-                res.cookie('pw-token', token, {
-                    expires: Utilities.getDate(Config.instance.user.tokenExpiration, "day"),
-                    secure: true,
-                    sameSite: 'lax',
-                });
+                res.cookie('pw-token', token, Constants.GetBrowserCookieOptions());
 
                 const user = await inst.db.getEntity<UserEntity>(UserEntity, githubUser.id);
 
