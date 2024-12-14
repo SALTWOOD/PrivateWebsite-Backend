@@ -11,7 +11,7 @@ import { createHash } from "crypto";
     article INT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     hash CHAR(40),
-    PRIMARY KEY (id),
+    PRIMARY KEY (id)
 `)
 @Index("user", "user")
 @Index("article", "article")
