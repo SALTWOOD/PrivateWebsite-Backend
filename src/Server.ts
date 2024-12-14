@@ -14,6 +14,7 @@ import { Comment } from './database/Comment.js';
 import JwtHelper from './JwtHelper.js';
 import { Constants, IUserJwt } from './Constants.js';
 import { Utilities } from './Utilities.js';
+import { createServer } from 'http';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -113,5 +114,11 @@ export class Server {
         this.app.listen(Config.instance.network.port, Config.instance.network.host, () => {
             console.log(`Server started on http://${Config.instance.network.host}:${Config.instance.network.port}`);
         });
+    }
+
+    public async stop(): Promise<void> {
+        if (this.db instanceof MySqlHelper) {
+            await this.db.close();
+        }
     }
 }
