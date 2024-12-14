@@ -1,5 +1,5 @@
 import { Article } from "./Article.js";
-import { AutoIncrement, Ignore, PrimaryKey, Table } from "./IDatabase.js";
+import { AutoIncrement, Foreign, Ignore, Index, PrimaryKey, Table } from "./IDatabase.js";
 import { UserEntity } from "./UserEntity.js";
 import { createHash } from "crypto";
 
@@ -11,12 +11,12 @@ import { createHash } from "crypto";
     article INT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     hash CHAR(40),
-    FOREIGN KEY (parent) REFERENCES comments(id),
     PRIMARY KEY (id),
-    INDEX user (user),
-    INDEX article (article),
-    INDEX parent (parent)
 `)
+@Index("user", "user")
+@Index("article", "article")
+@Index("parent", "parent")
+@Foreign("parent", { table: "comments", column: "id" }, "parent_children_constraint", "CASCADE", undefined)
 @AutoIncrement("id")
 @PrimaryKey("id")
 export class Comment {

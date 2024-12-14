@@ -1,5 +1,5 @@
 import * as mysql from 'mysql2/promise';
-import { mysqlPrimaryKeyMap, mysqlTableNameMap, mysqlTableSchemaMap, IDatabase, mysqlAutoIncrementMap } from './IDatabase.js';
+import { mysqlPrimaryKeyMap, mysqlTableNameMap, mysqlTableSchemaMap, mysqlIndexMap, IDatabase, mysqlAutoIncrementMap, mysqlForeignMap } from './IDatabase.js';
 
 export class MySqlHelper implements IDatabase {
     // @ts-ignore
@@ -101,7 +101,7 @@ export class MySqlHelper implements IDatabase {
         const [rows] = await this.mysqlConnection.query(`SHOW TABLES LIKE ?`, [tableName]);
         if ((rows as any[]).length > 0) {
             // 表存在，检查并更新列类型和缺少的列
-            await this.updateTableStructure(tableName, schema);
+            await this.updateTableStructure(new type().constructor, tableName, schema);
         } else {
             // 表不存在，直接创建
             const createTableSQL = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema})`;
@@ -110,7 +110,7 @@ export class MySqlHelper implements IDatabase {
     }
 
     // 检查并更新表结构
-    private async updateTableStructure(tableName: string, schema: string): Promise<void> {
+    private async updateTableStructure(constructor: Function, tableName: string, schema: string): Promise<void> {
         // 获取现有表的列信息
         const [existingColumns] = await this.mysqlConnection.query(`DESCRIBE ${tableName}`) as any[];
 
@@ -158,6 +158,70 @@ export class MySqlHelper implements IDatabase {
         if (columnsToAdd.length === 0 && columnsToModify.length === 0) {
             console.log(`No changes needed for table ${tableName}`);
         }
+
+        // 修改 INDEX 定义（如果有变化）
+        const indexMap = mysqlIndexMap.get(constructor) || [];
+        const existingIndexes = (await this.mysqlConnection.query(`SHOW INDEX FROM ${tableName}`))[0] as { Key_name: string, Column_name: string }[];
+        const newIndexes = indexMap.filter(i => !existingIndexes.some(e => e.Key_name === i.name && e.Column_name === i.index));
+        const removingIndexes = existingIndexes.filter(e => !indexMap.some(i => i.name === e.Key_name && i.index === e.Column_name));
+        if (newIndexes.length > 0) {
+            for (const index of newIndexes) {
+                const createIndexSQL = `CREATE INDEX ${index.name} ON ${tableName} (${index.index})`;
+                await this.mysqlConnection.query(createIndexSQL);
+                console.log(`Created index ${index.name} on table ${tableName}`);
+            }
+        }
+        if (removingIndexes.length > 0) {
+            for (const index of removingIndexes) {
+                const dropIndexSQL = `DROP INDEX ${index.Key_name} ON ${tableName}`;
+                await this.mysqlConnection.query(dropIndexSQL);
+                console.log(`Dropped index ${index.Key_name} on table ${tableName}`);
+            }
+        }
+
+        // 修改 FOREIGN KEY 定义（如果有变化）
+        const foreignKeys = mysqlForeignMap.get(constructor) || [];
+        const existingForeignKeys = (await this.mysqlConnection.query(`
+SELECT 
+    kcu.CONSTRAINT_NAME,
+    kcu.TABLE_NAME,
+    kcu.COLUMN_NAME,
+    kcu.REFERENCED_TABLE_NAME,
+    kcu.REFERENCED_COLUMN_NAME,
+    rc.UPDATE_RULE,
+    rc.DELETE_RULE
+FROM 
+    information_schema.KEY_COLUMN_USAGE kcu
+JOIN 
+    information_schema.REFERENTIAL_CONSTRAINTS rc
+    ON kcu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
+WHERE 
+    kcu.REFERENCED_TABLE_NAME IS NOT NULL AND kcu.TABLE_NAME = ?
+`        , [tableName]))[0] as {
+            CONSTRAINT_NAME: string,
+            TABLE_NAME: string,
+            COLUMN_NAME: string,
+            REFERENCED_TABLE_NAME: string,
+            REFERENCED_COLUMN_NAME: string,
+            UPDATE_RULE: string,
+            DELETE_RULE: string
+        }[];
+        const newForeignKeys = foreignKeys.filter(fk => !existingForeignKeys.some(e => e.CONSTRAINT_NAME === fk.name && e.COLUMN_NAME === fk.key && e.REFERENCED_TABLE_NAME === fk.target.table && e.REFERENCED_COLUMN_NAME === fk.target.column));
+        const removingForeignKeys = existingForeignKeys.filter(e => !foreignKeys.some(fk => fk.name === e.CONSTRAINT_NAME && fk.key === e.COLUMN_NAME && fk.target.table === e.REFERENCED_TABLE_NAME && fk.target.column === e.REFERENCED_COLUMN_NAME));
+        if (newForeignKeys.length > 0) {
+            for (const fk of newForeignKeys) {
+                const createForeignKeySQL = `ALTER TABLE ${tableName} ADD CONSTRAINT ${fk.name} FOREIGN KEY (${fk.key}) REFERENCES ${fk.target.table} (${fk.target.column}) ON UPDATE ${fk.on.update} ON DELETE ${fk.on.delete}`;
+                await this.mysqlConnection.query(createForeignKeySQL);
+                console.log(`Created foreign key ${fk.name} on table ${tableName}`);
+            }
+        }
+        if (removingForeignKeys.length > 0) {
+            for (const fk of removingForeignKeys) {
+                const dropForeignKeySQL = `ALTER TABLE ${tableName} DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`;
+                await this.mysqlConnection.query(dropForeignKeySQL);
+                console.log(`Dropped foreign key ${fk.CONSTRAINT_NAME} on table ${tableName}`);
+            }
+        }
     }
 
     // 插入数据（MySQL）
@@ -185,7 +249,7 @@ export class MySqlHelper implements IDatabase {
             Object.assign(entity, row);
             return entity;
         });
-        
+
         return rows as T[];
     }
 
@@ -280,7 +344,7 @@ export class MySqlHelper implements IDatabase {
         return (await this.mysqlConnection.query(sql, params))[0];
     }
 
-    public async query<T extends object>(type: { new (): T; }, sql: string, params?: any[]): Promise<T[]> {
+    public async query<T extends object>(type: { new(): T; }, sql: string, params?: any[]): Promise<T[]> {
         const tableName = this.getTableNameByConstructor(type);
         const [rows] = await this.mysqlConnection.query(sql, params);
         return (rows as T[]).map((row: T) => {
