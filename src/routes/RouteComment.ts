@@ -132,7 +132,7 @@ export class RouteComment {
 
             const id = Number(req.params.commentId) || 0;
             const articleId = Number(req.params.id) || 0;
-            const comments = await inst.db.select<Comment>(Comment, ['*'], "id = ${id} AND article = ?", [id, articleId]);
+            const comments = await inst.db.select<Comment>(Comment, ['*'], "id = ? AND article = ?", [id, articleId]);
 
             if (comments.length === 0) {
                 res.status(404).json({ error: 'Comment not found' });
