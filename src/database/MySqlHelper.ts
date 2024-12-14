@@ -160,7 +160,7 @@ export class MySqlHelper implements IDatabase {
         }
 
         // 修改 INDEX 定义（如果有变化）
-        const indexMap = mysqlIndexMap.get(constructor) || [];
+        const indexMap = (mysqlIndexMap.get(constructor) || []).filter(fk => !/^[A-Z_]+$/.test(fk.name));
         const existingIndexes = (await this.mysqlConnection.query(`SHOW INDEX FROM ${tableName}`))[0] as { Key_name: string, Column_name: string }[];
         const newIndexes = indexMap.filter(i => !existingIndexes.some(e => e.Key_name === i.name && e.Column_name === i.index));
         const removingIndexes = existingIndexes.filter(e => !indexMap.some(i => i.name === e.Key_name && i.index === e.Column_name));
@@ -180,7 +180,7 @@ export class MySqlHelper implements IDatabase {
         }
 
         // 修改 FOREIGN KEY 定义（如果有变化）
-        const foreignKeys = mysqlForeignMap.get(constructor) || [];
+        const foreignKeys = (mysqlForeignMap.get(constructor) || []);
         const existingForeignKeys = (await this.mysqlConnection.query(`
 SELECT 
     kcu.CONSTRAINT_NAME,
