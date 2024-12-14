@@ -25,8 +25,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootroot
       MYSQL_DATABASE: private_website_db
-      MYSQL_USER: mysql
-      MYSQL_PASSWORD: mysql
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
