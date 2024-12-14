@@ -36,7 +36,7 @@ const logAccess = (req: Request, res: Response) => {
 };
 
 const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next: NextFunction) => Promise<void> => {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response, next: NextFunction) => { 
         // 只有在有 token 且剩余时间小于 7 天的情况下才会进行续期，否则忽略并且继续执行下一个中间件
         const token = req.cookies[Constants.TOKEN_NAME];
         if (!token) return next();

@@ -12,7 +12,10 @@ import { createHash } from "crypto";
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     hash CHAR(40),
     FOREIGN KEY (parent) REFERENCES comments(id),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    INDEX (user),
+    INDEX (article),
+    INDEX (parent)
 `)
 @AutoIncrement("id")
 @PrimaryKey("id")
