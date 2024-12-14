@@ -13,9 +13,9 @@ import { createHash } from "crypto";
     hash CHAR(40),
     FOREIGN KEY (parent) REFERENCES comments(id),
     PRIMARY KEY (id),
-    INDEX (user),
-    INDEX (article),
-    INDEX (parent)
+    INDEX user (user),
+    INDEX article (article),
+    INDEX parent (parent)
 `)
 @AutoIncrement("id")
 @PrimaryKey("id")

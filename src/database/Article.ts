@@ -13,7 +13,7 @@ import { AutoIncrement, PrimaryKey, Table } from "./IDatabase.js";
     background TEXT,
     hash CHAR(64),
     PRIMARY KEY (id),
-    INDEX (author)
+    INDEX author (author)
 `)
 @AutoIncrement("id")
 export class Article {
