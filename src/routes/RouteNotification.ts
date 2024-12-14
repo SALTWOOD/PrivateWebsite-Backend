@@ -43,7 +43,7 @@ export class RouteNotification {
                 return;
             }
 
-            const notifications = await inst.db.select<Comment>(Comment, ["*"], this.getSql(all), this.getParams(user, all), this.VARIABLE);
+            const notifications = (await inst.db.select<Comment>(Comment, ["*"], this.getSql(all), this.getParams(user, all), this.VARIABLE)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
             const data = await Promise.all(notifications.slice(page * 10, (page + 1) * 10).map(async n => ({
                 ...n.getJson(true),
