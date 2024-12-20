@@ -72,14 +72,14 @@ export class RouteArticles {
             };
 
             const newArticle = new Article();
-            newArticle.title = article.title;
-            newArticle.content = article.content;
-            newArticle.description = article.description;
-            newArticle.published = article.published;
+            newArticle.title = article.title ?? "";
+            newArticle.content = article.content ?? "";
+            newArticle.description = article.description ?? "";
+            newArticle.published = article.published ?? false;
             newArticle.author = user.id;
-            newArticle.background = article.background;
+            newArticle.background = article.background ?? "";
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
-            newArticle.category = article.category;
+            newArticle.category = article.category ?? 0;
             newArticle.lastUpdated = Date.now();
 
             const id = await inst.db.insert(Article, newArticle);
