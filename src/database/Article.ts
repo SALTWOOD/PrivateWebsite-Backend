@@ -12,9 +12,11 @@ import { AutoIncrement, Index, PrimaryKey, Table } from "./IDatabase.js";
     title VARCHAR(24),
     background TEXT,
     hash CHAR(64),
+    category UNSIGNED TINYINT,
     PRIMARY KEY (id)
 `)
 @Index("author", "author")
+@Index("category", "category")
 @AutoIncrement("id")
 export class Article {
     public author: number = 0;
@@ -27,6 +29,7 @@ export class Article {
     public id: number = 0;
     public background: string = "";
     public hash: string = "";
+    public category: number = 0;
 
     public getJson(contentHidden: boolean = false): any {
         const toBoolean = ({ published, ...rest }: any) => ({
