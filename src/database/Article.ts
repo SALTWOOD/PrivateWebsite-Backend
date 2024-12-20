@@ -12,7 +12,7 @@ import { AutoIncrement, Index, PrimaryKey, Table } from "./IDatabase.js";
     title VARCHAR(24),
     background TEXT,
     hash CHAR(64),
-    category TINYINT UNSIGNED,
+    category TINYINT UNSIGNED DEFAULT 0,
     PRIMARY KEY (id)
 `)
 @Index("author", "author")
