@@ -15,14 +15,11 @@ export class RouteArticles {
 
         inst.app.get("/api/articles", async (req, res) => {
             const user = await Utilities.getUser(req, inst.db);
-            const category = Number(req.query.category || "") || 0;
-
             const articles = await inst.db.getEntities<Article>(Article);
 
             const query = articles
                 .filter(a => (a.published
-                    || (user && (a.author === user?.id || user.permission >= 1)))
-                    && (category === 0 || a.category === category))
+                    || (user && (a.author === user?.id || user.permission >= 1))))
                 .map(async a => {
                     const author = await inst.db.getEntity<UserEntity>(UserEntity, a.author);
                     return {
@@ -68,7 +65,6 @@ export class RouteArticles {
                 description: string,
                 published: boolean,
                 background: string,
-                category: number
             };
 
             const newArticle = new Article();
@@ -79,7 +75,6 @@ export class RouteArticles {
             newArticle.author = user.id;
             newArticle.background = article.background ?? "";
             newArticle.hash = createHash("sha256").update(newArticle.content).digest("hex");
-            newArticle.category = article.category ?? 0;
             newArticle.lastUpdated = Date.now();
 
             const id = await inst.db.insert(Article, newArticle);
@@ -103,7 +98,6 @@ export class RouteArticles {
                 description: string | undefined,
                 published: boolean | undefined,
                 background: string | undefined,
-                category: number | undefined,
                 oldHash: string
             };
 
@@ -128,7 +122,6 @@ export class RouteArticles {
             if (article.description !== undefined) newArticle.description = article.description;
             if (article.published !== undefined) newArticle.published = article.published;
             if (article.background !== undefined) newArticle.background = article.background;
-            if (article.category !== undefined) newArticle.category = article.category;
             newArticle.lastUpdated = Date.now();
 
             inst.db.update(Article, newArticle);
