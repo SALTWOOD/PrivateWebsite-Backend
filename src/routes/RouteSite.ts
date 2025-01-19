@@ -1,10 +1,31 @@
+import { title } from "process";
 import { Config } from "../Config.js";
 import { RouteFactory } from "./RouteFactory.js";
 
 export class RouteSite {
     public static register(inst: RouteFactory): void {
         inst.app.get("/api/site/info", async (req, res) => {
-            res.json(Config.instance.site_information);
+            if (!Config.instance.site.info) {
+                res.json({
+                    title: "未命名",
+                    bio: "这里还什么都没有……"
+                });
+                return;
+            }
+            // 判断 Config.instance.site.info.bio 的类型。array 就随机抽选一个像上面一样返回。string 就直接跟上面一样返回。
+            if (Array.isArray(Config.instance.site.info.bio)) {
+                const random = Config.instance.site.info.bio[Math.floor(Math.random() * Config.instance.site.info.bio.length)];
+                res.json({
+                    title: Config.instance.site.info.title || "未命名",
+                    bio: random
+                });
+            }
+            else if (typeof Config.instance.site.info.bio === "string")
+                res.json({
+                    title: Config.instance.site.info.title || "未命名",
+                    bio: Config.instance.site.info.bio
+                });
+            else res.status(500).send("Invalid bio type");
         });
 
         inst.app.get("/api/site/friends", async (req, res) => {
