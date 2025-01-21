@@ -50,5 +50,13 @@ export class RouteSite {
                 res.status(400).send("Invalid type");
             }
         });
+
+        inst.app.get("/api/site/sidebar", async (req, res) => {
+            if (!Config.instance.site.sidebar) {
+                res.json([]);
+                return;
+            }
+            res.json(Config.instance.site.sidebar);
+        });
     }
 }

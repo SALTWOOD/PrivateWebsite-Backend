@@ -38,8 +38,14 @@ export class Config {
         info?: {
             title: string,
             bio: string[] | string
-        }
-        backgrounds: string[]
+        },
+        backgrounds: string[],
+        sidebar?: {
+            title: string,
+            icon: string,
+            to?: string,
+            href?: string
+        }[]
     } = { backgrounds: [] };
 
     public backgrounds: string[] = [];
