@@ -1,7 +1,7 @@
 import { FriendLink } from "../database/FriendLink.js";
 import { RouteFactory } from "./RouteFactory.js";
 
-class RouteFriends {
+export class RouteFriends {
     public static register(inst: RouteFactory) {
         inst.app.get("/api/friends", async (req, res) => {
             const friends = await inst.db.getEntities<FriendLink>(FriendLink);

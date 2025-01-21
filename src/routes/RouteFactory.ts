@@ -12,6 +12,7 @@ import { IDatabase } from '../database/IDatabase.js';
 import { RouteComment } from './RouteComment.js';
 import { RouteRoot } from './RouteRoot.js';
 import { RouteNotification } from './RouteNotification.js';
+import { RouteFriends } from './RouteFriends.js';
 
 export class RouteFactory {
     public app: Express;
@@ -36,5 +37,6 @@ export class RouteFactory {
         RouteComment.register(this);
         RouteRoot.register(this);
         RouteNotification.register(this);
+        RouteFriends.register(this);
     }
 }
