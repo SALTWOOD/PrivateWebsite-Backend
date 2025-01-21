@@ -1,6 +1,7 @@
 import { title } from "process";
 import { Config } from "../Config.js";
 import { RouteFactory } from "./RouteFactory.js";
+import { FriendLink } from "../database/FriendLink.js";
 
 export class RouteSite {
     public static register(inst: RouteFactory): void {
@@ -29,7 +30,7 @@ export class RouteSite {
         });
 
         inst.app.get("/api/site/friends", async (req, res) => {
-            res.json(Config.instance.site.friends);
+            res.json(await inst.db.getEntities<FriendLink>(FriendLink));
         });
 
         inst.app.get("/api/site/random_background", async (req, res) => {

@@ -16,6 +16,7 @@ import { AutoIncrement, Index, PrimaryKey, Table } from "./IDatabase.js";
 `)
 @Index("author", "author")
 @AutoIncrement("id")
+@PrimaryKey("id")
 export class Article {
     public author: number = 0;
     public content: string = "";

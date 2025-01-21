@@ -15,6 +15,7 @@ import JwtHelper from './JwtHelper.js';
 import { Constants, IUserJwt } from './Constants.js';
 import { Utilities } from './Utilities.js';
 import { createServer } from 'http';
+import { FriendLink } from './database/FriendLink.js';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -87,6 +88,20 @@ export class Server {
         await this.db.createTable<UserEntity>(UserEntity);
         await this.db.createTable<Article>(Article);
         await this.db.createTable<Comment>(Comment);
+        await this.db.createTable<FriendLink>(FriendLink);
+
+        if (Config.instance.site.friends) {
+            console.warn("site.friends is deprecated, use friendlink table instead.")
+            console.warn("Auto-migrating site.friends to friendlink table.")
+            for (const link of Config.instance.site.friends) {
+                const friend = new FriendLink();
+                friend.name = link.name;
+                friend.url = link.url;
+                friend.description = link.description;
+                friend.avatar = link.avatar;
+                await this.db.insert<FriendLink>(FriendLink, friend);
+            }
+        }
 
         this.rss = new RssFeed(async () => (await this.db.getEntities<Article>(Article)).filter(a => a.published));
 
