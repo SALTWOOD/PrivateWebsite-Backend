@@ -1,4 +1,5 @@
 import { FriendLink } from "../database/FriendLink.js";
+import { Utilities } from "../Utilities.js";
 import { RouteFactory } from "./RouteFactory.js";
 
 export class RouteFriends {
@@ -9,6 +10,10 @@ export class RouteFriends {
         });
 
         inst.app.post("/api/friends", async (req, res) => {
+            if (!await Utilities.getUser(req, inst.db)) {
+                res.status(401).json({ error: "Unauthorized" });
+                return;
+            }
             const friend = req.body as FriendLink;
 
             if (typeof req.body.name !== "string"
@@ -25,6 +30,10 @@ export class RouteFriends {
         });
 
         inst.app.delete("/api/friends/:id", async (req, res) => {
+            if (!await Utilities.getUser(req, inst.db)) {
+                res.status(401).json({ error: "Unauthorized" });
+                return;
+            }
             const id = parseInt(req.params.id);
             const friend = await inst.db.getEntity<FriendLink>(FriendLink, id);
 
