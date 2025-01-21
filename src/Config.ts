@@ -38,15 +38,9 @@ export class Config {
         info?: {
             title: string,
             bio: string[] | string
-        },
-        friends: {
-            name: string,
-            url: string,
-            avatar: string,
-            description: string
-        }[],
+        }
         backgrounds: string[]
-    } = { friends: [], backgrounds: [] };
+    } = { backgrounds: [] };
 
     public backgrounds: string[] = [];
 
