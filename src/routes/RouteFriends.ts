@@ -18,7 +18,7 @@ export class RouteFriends {
 
             if (typeof req.body.name !== "string"
                 || typeof req.body.url!== "string"
-                || typeof req.body.avatar === "string"
+                || typeof req.body.avatar !== "string"
                 || typeof req.body.description!== "string") {
                 res.status(400).json({ error: "Invalid input" });
                 return;
@@ -27,6 +27,37 @@ export class RouteFriends {
             const id = await inst.db.insert<FriendLink>(FriendLink, friend);
             friend.id = id;
             res.json(friend);
+        });
+
+        inst.app.put("/api/friends/:id", async (req, res) => {
+            if (!await Utilities.isAdmin(req, inst.db)) {
+                res.status(403).json({ error: "Forbidden" });
+                return;
+            }
+            const body = req.body as FriendLink;
+
+            if (typeof req.body.name !== "string"
+                || typeof req.body.url !== "string"
+                || typeof req.body.avatar !== "string"
+                || typeof req.body.description !== "string"
+                || typeof req.body.id !== "number") {
+                res.status(400).json({ error: "Invalid input" });
+                return;
+            }
+
+            const obj = await inst.db.getEntity<FriendLink>(FriendLink, body.id);
+            if (!obj) {
+                res.status(404).json({
+                    error: "The link you requested to edit doesn't exist."
+                });
+                return;
+            }
+
+            await inst.db.update<FriendLink>(FriendLink, body);
+            res.json({
+                old: obj,
+                new: body
+            });
         });
 
         inst.app.delete("/api/friends/:id", async (req, res) => {
