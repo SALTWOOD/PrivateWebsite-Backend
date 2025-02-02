@@ -40,7 +40,7 @@ export class RouteFriends {
                 || typeof req.body.url !== "string"
                 || typeof req.body.avatar !== "string"
                 || typeof req.body.description !== "string"
-                || typeof req.body.id !== "number") {
+                || req.body.id !== Number(req.params.id)) {
                 res.status(400).json({ error: "Invalid input" });
                 return;
             }
