@@ -10,8 +10,8 @@ export class RouteFriends {
         });
 
         inst.app.post("/api/friends", async (req, res) => {
-            if (!await Utilities.getUser(req, inst.db)) {
-                res.status(401).json({ error: "Unauthorized" });
+            if (!await Utilities.isAdmin(req, inst.db)) {
+                res.status(403).json({ error: "Forbidden" });
                 return;
             }
             const friend = req.body as FriendLink;
@@ -30,8 +30,8 @@ export class RouteFriends {
         });
 
         inst.app.delete("/api/friends/:id", async (req, res) => {
-            if (!await Utilities.getUser(req, inst.db)) {
-                res.status(401).json({ error: "Unauthorized" });
+            if (!await Utilities.isAdmin(req, inst.db)) {
+                res.status(403).json({ error: "Forbidden" });
                 return;
             }
             const id = parseInt(req.params.id);

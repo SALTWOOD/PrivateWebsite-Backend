@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UserEntity } from "./database/UserEntity.js";
 import JwtHelper from "./JwtHelper.js";
 import { IDatabase } from "./database/IDatabase.js";
@@ -81,4 +81,39 @@ export class Utilities {
             return null;
         }
     }
+
+    public static async isLoggedIn(req: Request, db: IDatabase): Promise<boolean> {
+        return (await this.getUser(req, db)) !== null;
+    }
+
+    public static async isAdmin(req: Request, db: IDatabase): Promise<boolean> {
+        const user = await this.getUser(req, db);
+        return Boolean(user && (user?.permission >= 1));
+    }
+
+    public static needUser(db: IDatabase): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+        return async (req, res, next) => {
+            if (await this.isLoggedIn(req, db)) {
+                next();
+                return;
+            }
+            res.status(401).json({ error: "Unauthorized" });
+        }
+    }
+
+    public static needAdmin(db: IDatabase): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+        return async (req, res, next) => {
+            if (await this.isAdmin(req, db)) {
+                next();
+                return;
+            }
+            res.status(403).json({ error: "Forbidden" });
+        }
+    };
 }
+
+export const logAccess = (req: Request, res: Response) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const ip = req.ip;
+    console.log(`${req.method} ${req.originalUrl} ${req.protocol} <${res.statusCode}> - [${ip}] ${userAgent}`);
+};

@@ -13,7 +13,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Comment } from './database/Comment.js';
 import JwtHelper from './JwtHelper.js';
 import { Constants, IUserJwt } from './Constants.js';
-import { Utilities } from './Utilities.js';
+import { Utilities, logAccess } from './Utilities.js';
 import { createServer } from 'http';
 import { FriendLink } from './database/FriendLink.js';
 
@@ -29,12 +29,6 @@ const logMiddleware = (req: Request, res: Response, next: NextFunction) => {
     res.on('finish', () => {
         logAccess(req, res);
     });
-};
-
-const logAccess = (req: Request, res: Response) => {
-    const userAgent = req.headers['user-agent'] || '';
-    const ip = req.ip;
-    console.log(`${req.method} ${req.originalUrl} ${req.protocol} <${res.statusCode}> - [${ip}] ${userAgent}`);
 };
 
 const renewTokenMiddleware = (db: IDatabase): (req: Request, res: Response, next: NextFunction) => Promise<void> => {
