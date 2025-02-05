@@ -16,4 +16,6 @@ export class FriendLink {
     public description: string = "";
     public url: string = "";
     public avatar: string = "";
+    public lastAvailable: Date = new Date();
+    public available: boolean = true;
 }

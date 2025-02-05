@@ -16,6 +16,7 @@ import { Constants, IUserJwt } from './Constants.js';
 import { Utilities, logAccess } from './Utilities.js';
 import { createServer } from 'http';
 import { FriendLink } from './database/FriendLink.js';
+import { CronJob } from 'cron';
 
 // @ts-ignore
 await import('express-async-errors');
@@ -56,6 +57,7 @@ export class Server {
     private got: Got;
     // @ts-ignore
     private rss: RssFeed;
+    private cronjobs: Map<string, CronJob>;
 
     constructor() {
         this.app = express();
@@ -72,6 +74,8 @@ export class Server {
                 'user-agent': `PrivateWebsite-Backend/${Config.version} (TypeScript; Node.js/${process.version}; SALTWOOD/PrivateWebsite-Backend)`
             }
         });
+
+        this.cronjobs = new Map<string, CronJob>();
     }
 
     public async init(): Promise<void> {
@@ -87,6 +91,32 @@ export class Server {
         this.rss = new RssFeed(async () => (await this.db.getEntities<Article>(Article)).filter(a => a.published));
 
         this.setupRoutes();
+
+        await this.checkFriends();
+
+        this.cronjobs.set("friend_check", new CronJob("0 0 * * *",
+            this.checkFriends.bind(this),
+            null,
+            true
+        ));
+    }
+
+    private async checkFriends(): Promise<void> {
+        for (const f of await this.db.getEntities<FriendLink>(FriendLink)) {
+            let success: boolean = false;
+            for (const count of [1, 2, 3]) {
+                try {
+                    await got(f.url);
+                    success = true;
+                    break;
+                } catch (err) {
+                    console.warn(`检查友链 \"${f.name}\" 失败，第 ${count} 次尝试……`);
+                }
+            }
+            f.available = success;
+            if (success) f.lastAvailable = new Date();
+            this.db.update<FriendLink>(FriendLink, f);
+        }
     }
 
     private setupRoutes(): void {

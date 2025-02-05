@@ -17,7 +17,7 @@ export class RouteFriends {
             const friend = req.body as FriendLink;
 
             if (typeof req.body.name !== "string"
-                || typeof req.body.url!== "string"
+                || typeof req.body.url !== "string"
                 || typeof req.body.avatar !== "string"
                 || typeof req.body.description!== "string") {
                 res.status(400).json({ error: "Invalid input" });
