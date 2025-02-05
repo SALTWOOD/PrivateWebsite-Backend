@@ -6,6 +6,8 @@ import { AutoIncrement, PrimaryKey, Table } from "./IDatabase.js";
     description VARCHAR(128),
     url VARCHAR(256),
     avatar VARCHAR(256),
+    lastAvailable DATETIME DEFAULT CURRENT_TIMESTAMP,
+    available BOOLEAN,
     PRIMARY KEY (id)
 `)
 @AutoIncrement("id")
