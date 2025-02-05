@@ -92,13 +92,13 @@ export class Server {
 
         this.setupRoutes();
 
-        await this.checkFriends();
-
-        this.cronjobs.set("friend_check", new CronJob("0 0 * * *",
-            this.checkFriends.bind(this),
-            null,
-            true
-        ));
+        this.checkFriends().then(() => {
+            this.cronjobs.set("friend_check", new CronJob("0 0 * * *",
+                this.checkFriends.bind(this),
+                null,
+                true
+            ));
+        });
     }
 
     private async checkFriends(): Promise<void> {
@@ -110,7 +110,7 @@ export class Server {
                     success = true;
                     break;
                 } catch (err) {
-                    console.warn(`检查友链 \"${f.name}\" 失败，第 ${count} 次尝试……`);
+                    console.warn(`Friend link check \"${f.name}\" failed, retrying...(${count}/3)`);
                 }
             }
             f.available = success;
