@@ -111,7 +111,7 @@ export class Server {
                     break;
                 } catch (err) {
                     console.warn(`Friend link check \"${f.name}\" failed, retrying...(${count}/3)`);
-                    console.warn(err);
+                    console.warn((err as Error).message);
                 }
             }
             f.available = success;
