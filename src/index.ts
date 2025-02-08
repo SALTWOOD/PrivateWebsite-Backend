@@ -1,5 +1,5 @@
 import { Server } from "./Server.js";
-import { mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 
 function onStop(signal: string) {
     server.stop();
@@ -15,7 +15,7 @@ const requiredFolders = [
 ];
 
 for (const folder of requiredFolders) {
-    mkdirSync(folder, { recursive: true });
+    if (!existsSync(folder)) mkdirSync(folder);
 }
 
 process.on("SIGINT", onStop);
