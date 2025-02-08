@@ -24,9 +24,11 @@ export class RouteFriends {
                 return;
             }
 
-            const id = await inst.db.insert<FriendLink>(FriendLink, friend);
-            friend.id = id;
-            res.json(friend);
+            const obj = new FriendLink();
+            obj.concat(friend);
+            const id = await inst.db.insert<FriendLink>(FriendLink, obj);
+            obj.id = id;
+            res.json(obj);
         });
 
         inst.app.put("/api/friends/:id", async (req, res) => {
@@ -53,11 +55,9 @@ export class RouteFriends {
                 return;
             }
 
-            await inst.db.update<FriendLink>(FriendLink, body);
-            res.json({
-                old: obj,
-                new: body
-            });
+            obj.concat(body);
+            await inst.db.update<FriendLink>(FriendLink, obj);
+            res.json(obj);
         });
 
         inst.app.delete("/api/friends/:id", async (req, res) => {

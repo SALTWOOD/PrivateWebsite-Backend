@@ -20,4 +20,11 @@ export class FriendLink {
     public avatar: string = "";
     public lastAvailable: Date = new Date();
     public available: boolean = true;
+
+    public concat(friend: FriendLink): void {
+        this.name = friend.name;
+        this.description = friend.description;
+        this.url = friend.url
+        this.avatar = friend.avatar;
+    }
 }
