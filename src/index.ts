@@ -1,3 +1,4 @@
+import { Config } from "./Config.js";
 import { Server } from "./Server.js";
 import { existsSync, mkdirSync } from "fs";
 
@@ -5,17 +6,6 @@ function onStop(signal: string) {
     server.stop();
     console.log(`Received ${signal}. Shutting down...`);
     process.exit(0);
-}
-
-const requiredFolders = [
-    "assets",
-    "assets/uploads",
-    "assets/backgrounds",
-    "data"
-];
-
-for (const folder of requiredFolders) {
-    if (!existsSync(folder)) mkdirSync(folder);
 }
 
 process.on("SIGINT", onStop);
